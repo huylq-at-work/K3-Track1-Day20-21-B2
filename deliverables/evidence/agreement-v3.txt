@@ -1,19 +1,19 @@
 Case chung: 25
 Đồng thuận hoàn toàn: 16/25 = 64%
   huy vs quan: 16/25 = 64%
-  huy vs label_cuong: 17/25 = 68%
-  quan vs label_cuong: 24/25 = 96%
+  huy vs cuong: 17/25 = 68%
+  quan vs cuong: 24/25 = 96%
 
 9 case bất đồng — đem vào thảo luận:
-  SC-06 -> huy: fail · quan: pass · label_cuong: pass
-  SC-10 -> huy: fail · quan: pass · label_cuong: pass
-  SC-12 -> huy: fail · quan: pass · label_cuong: pass
-  SC-13 -> huy: fail · quan: pass · label_cuong: pass
-  SC-16 -> huy: fail · quan: pass · label_cuong: pass
-  SC-17 -> huy: fail · quan: pass · label_cuong: pass
-  SC-18 -> huy: fail · quan: pass · label_cuong: pass
-  SC-22 -> huy: fail · quan: pass · label_cuong: fail
-  SC-24 -> huy: fail · quan: pass · label_cuong: pass
+  SC-06 -> huy: fail · quan: pass · cuong: pass
+  SC-10 -> huy: fail · quan: pass · cuong: pass
+  SC-12 -> huy: fail · quan: pass · cuong: pass
+  SC-13 -> huy: fail · quan: pass · cuong: pass
+  SC-16 -> huy: fail · quan: pass · cuong: pass
+  SC-17 -> huy: fail · quan: pass · cuong: pass
+  SC-18 -> huy: fail · quan: pass · cuong: pass
+  SC-22 -> huy: fail · quan: pass · cuong: fail
+  SC-24 -> huy: fail · quan: pass · cuong: pass
 
 Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
 
