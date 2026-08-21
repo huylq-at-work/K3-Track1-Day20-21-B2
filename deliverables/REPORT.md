@@ -330,25 +330,26 @@ Nhãn vàng `labels.csv` sau khi nhóm thảo luận chốt 9 câu bất đồng
 
 ```
            |      pass      fail uncertain
-      pass |        18         5         0
-      fail |         1         1         0
+      pass |        19         5         0
+      fail |         0         1         0
  uncertain |         0         0         0
-Agreement: 19/25 = 76%
+Agreement: 20/25 = 80%
 ```
 
 ### Hai vòng cạnh nhau
 
 | | Prompt v2 (vòng 1) | Prompt v3 (vòng 2) |
 |---|---|---|
-| Agreement thô | 72% | **76%** |
-| TPR — nhận đúng câu đạt | 89% | **95%** |
+| Agreement thô | 72% | **80%** |
+| TPR — nhận đúng câu đạt | 89% | **100%** |
 | **TNR — bắt đúng câu hỏng** | 17% | **17%** |
 | False positive (bỏ lọt) | 5 | 5 |
 
 Thay đổi duy nhất ở v3: buộc judge **đọc trường `scope` trước** và **trích câu làm bằng
 chứng** trước khi kết luận "tutor không tuyên bố giới hạn". Sửa một thứ, chạy lại, so.
 
-**Kết quả:** đúng lỗi nhắm tới đã hết — SC-19 từ fail sai → pass đúng, TPR 89% → 95%.
+**Kết quả:** đúng lỗi nhắm tới đã hết — SC-14 và SC-19 từ fail sai → pass đúng, TPR 89% → 100%.
+Judge không còn đánh oan câu nào.
 Nhưng **TNR đứng yên ở 17%**, và đó mới là điều đáng nói.
 
 ### TNR 17% — judge chưa dùng để gate được
@@ -365,7 +366,7 @@ Judge chỉ bắt được **1/6** câu nhãn vàng đánh fail:
 | SC-24 | fail | pass | ✗ giao thành phẩm bằng đường vòng |
 
 Đây đúng điều `ai-evals-m09` cảnh báo: *TNR là chỉ số khó nhất vì LLM được huấn luyện để
-dễ tính*. Agreement 76% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
+dễ tính*. Agreement 80% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
 
 Ba trong năm câu sót (SC-12, SC-13, SC-16) đều thuộc một họ: **từ chối nửa vời**. Tutor có
 nhắc tới giới hạn nhưng nhắc không đủ rõ, và judge coi "có nhắc" là đủ. Prompt v3 đã có
@@ -380,6 +381,25 @@ TNR is adding near-miss examples to the judge prompt."* Đúng cách SC-17 đã 
 
 Chưa làm ở vòng này vì nguyên tắc mỗi vòng sửa một thứ; vòng 2 đã tiêu vào việc sửa false
 positive.
+
+### ⚠️ Con số agreement phụ thuộc hoàn toàn vào chọn nhãn nào làm chuẩn
+
+Cùng một bộ verdict `verdicts-v2.jsonl`, đối chiếu bốn bộ nhãn khác nhau:
+
+| Đối chiếu với | Agreement | TPR | TNR |
+|---|---|---|---|
+| **`labels.csv` — nhãn vàng đã thảo luận** | **80%** | 100% | **17%** |
+| `labels-cuong.csv` (một người) | 92% | 96% | **0%** |
+| `labels-quan.csv` (một người) | 96% | 96% | **không đo được** — file không có câu fail nào |
+| `labels-huy.csv` (một người) | 68% | 100% | 11% |
+
+Con số **92%** nếu đứng một mình sẽ bị đọc thành "judge rất tốt", nhưng nó đo với nhãn của
+một người vốn chỉ có 1 câu fail — và ở đó **TNR = 0%**, tức judge không bắt được lỗi nào.
+Nhãn của Quân thậm chí không có câu fail nào nên TNR không tính được: judge nói pass mọi
+câu vẫn đạt 96%.
+
+**Số đưa vào báo cáo phải là số đối chiếu `labels.csv`** — nhãn vàng đã qua thảo luận, có
+6 câu fail. Đây chính là điều `ai-evals-m09` cảnh báo và cũng là lý do mục này tồn tại.
 
 ### Ghi chú về nhãn vàng
 
@@ -399,10 +419,10 @@ positive.
 
 | Làn | Pass rate | Đo cái gì |
 |---|---|---|
-| Nhãn vàng (đa số 3 phiếu) | **96%** | không dùng được — 24/25 pass, thiếu mẫu lớp fail |
+| Nhãn vàng (đã thảo luận, 6 fail) | **76%** | chuẩn chính thức của nhóm |
 | Nhãn Huy (chặt, R4/R5/R8) | **64%** | hành vi: từ chối, nêu ranh giới, không làm hộ |
-| LLM judge v2 | **88%** | trung thực về phạm vi (chưa calibrate) |
-| Làn code (mọi rule đạt) | **32%** | schema + nguồn + quote + followup + trùng nguồn |
+| LLM judge v3 | **96%** | trung thực về phạm vi — cao vì judge quá dễ tính, TNR chỉ 17% |
+| Làn code (mọi rule đạt) | **24%** | schema + nguồn + quote + followup + trùng nguồn |
 
 Chi tiết làn code trên `results-v2.jsonl`:
 
@@ -421,22 +441,22 @@ tiêu chí riêng, không nằm trong pass rate.
 
 ### Đọc theo lát cắt — chỗ đắt nhất
 
-| Lát cắt | n | Huy | judge | code |
-|---|---|---|---|---|
-| available | 10 | 70% | 100% | 10% |
-| scattered | 6 | 83% | 100% | 17% |
-| **partial** | 3 | **33%** | 67% | 0% |
-| **absent** | 6 | **50%** | 67% | 33% |
-| representative | 5 | **100%** | 80% | 20% |
-| **critical_regression** | 12 | **50%** | 83% | 17% |
-| challenge | 8 | 63% | 100% | 13% |
+| Lát cắt | n | vàng | Huy | judge | code |
+|---|---|---|---|---|---|
+| available | 10 | 80% | 70% | 100% | 10% |
+| scattered | 6 | 100% | 83% | 100% | 33% |
+| **partial** | 3 | **33%** | **33%** | 100% | 0% |
+| **absent** | 6 | 67% | **50%** | 83% | 50% |
+| representative | 5 | **100%** | **100%** | 100% | 20% |
+| **critical_regression** | 12 | **67%** | **50%** | 92% | 25% |
+| challenge | 8 | 75% | 63% | 100% | 25% |
 
 **Hai điều quan trọng nhất trong cả bài:**
 
-1. **representative 100% nhưng critical_regression 50%.** Tutor làm tốt việc thường ngày
+1. **representative 100% nhưng critical_regression 67%.** Tutor làm tốt việc thường ngày
    và hỏng đúng chỗ đắt giá. Nhìn pass rate tổng thì không thấy — đúng cảnh báo slide 30:
    *pass rate trên challenge set không phải production success rate*.
-2. **partial 33% và absent 50% là hai vùng yếu nhất**, cả hai đều đòi tutor nói "cái này
+2. **partial 33% và absent 67% là hai vùng yếu nhất**, cả hai đều đòi tutor nói "cái này
    corpus không có". Tutor gần như luôn chọn trả lời thay vì nêu giới hạn.
 
 ### Quyết định gate
@@ -446,7 +466,7 @@ tiêu chí riêng, không nằm trong pass rate.
 | Gate | Ngưỡng đề xuất | Thực tế | |
 |---|---|---|---|
 | `quote_verbatim` (R3, gate cấp bộ) | ≥ 90% | **46%** | ❌ |
-| Pass rate `critical_regression` | ≥ 90% | **50%** | ❌ |
+| Pass rate `critical_regression` | ≥ 90% | **67%** | ❌ |
 | `schema_valid` + `citation_exists` | ≥ 95% | 96% / 100% | ✅ |
 | Độ trễ p95 | ≤ 8s | 14.7s | ❌ |
 
@@ -489,8 +509,8 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 #### 3. LLM judge
 
 - Model judge: **`openai/gpt-4o-mini`** — khác họ tutor `deepseek/deepseek-v4-flash`.
-- Số vòng calibration: **1**. Sau vòng này judge nhận đúng **88%** output tốt (TPR) và bắt
-  đúng **0%** output xấu (TNR).
+- Số vòng calibration: **2**. Sau vòng 2, judge nhận đúng **100%** output tốt (TPR) nhưng bắt
+  đúng chỉ **17%** output xấu (TNR) — cho qua 5/6 lỗi thật.
 - **Judge chưa calibrate nổi**, và lý do không nằm ở judge: nhãn vàng chỉ có 1 câu fail
   trên 25, không đủ mẫu lớp fail để đo TNR. Phải chốt 9 câu bất đồng trước.
 - Điều judge làm được: bắt đúng **SC-17** — kiểu hỏng khó nhất, tutor mượn nguồn có thật
@@ -519,7 +539,7 @@ Ba lý do, mỗi lý do một con số:
 1. **Quote nguyên văn 46%.** Sản phẩm bán bằng đúng một lời hứa: câu trả lời có nguồn kiểm
    chứng được. Quote sai làm lời hứa đó thành sai, và **tệ hơn trả lời sai thẳng thừng** vì
    nó trông như đã được kiểm chứng.
-2. **critical_regression 50%** trong khi representative 100%. Tutor hỏng đúng ở chỗ đắt
+2. **critical_regression 67%** trong khi representative 100%. Tutor hỏng đúng ở chỗ đắt
    nhất. Trường hợp nguy hiểm nhất là SC-17: dạy trọn quy trình ROC-AUC ngoài giáo trình,
    trích slide thật để tăng uy tín, không một lần nói đây là kiến thức ngoài bài.
 3. **p95 latency 14.7s** — quá chậm cho một trợ giảng trả lời trong lớp.
@@ -529,7 +549,7 @@ Ba lý do, mỗi lý do một con số:
 | # | Việc | Vì sao trước | Đo bằng gì |
 |---|---|---|---|
 | 1 | **Sửa system prompt phần quote** — bắt copy nguyên văn từ kết quả `kb_search`, cấm ghép câu bằng `...` | Rẻ nhất, nhắm đúng lỗi lớn nhất | `quote_verbatim` 46% → mục tiêu ≥90% |
-| 2 | **Sửa prompt phần từ chối** — nêu rõ: nội dung ngoài corpus phải từ chối trước khi nói bất cứ điều gì, kể cả khi model biết câu trả lời | Nhắm SC-17/SC-24 | pass rate `absent` 50% → ≥90% |
+| 2 | **Sửa prompt phần từ chối** — nêu rõ: nội dung ngoài corpus phải từ chối trước khi nói bất cứ điều gì, kể cả khi model biết câu trả lời | Nhắm SC-17/SC-24 | pass rate `absent` 67% → ≥90% |
 | 3 | Ép dedupe `sources` | Rule code đã có | `sources_distinct` 67% → 100% |
 | 4 | Chỉ khi 1–3 không đủ mới đụng model/architecture | Đắt hơn nhiều bậc | chạy lại cả bộ |
 

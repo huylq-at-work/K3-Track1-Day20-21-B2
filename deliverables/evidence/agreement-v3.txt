@@ -18,31 +18,20 @@ Case chung: 25
 Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
 
 === VÒNG 3 — CẢ BA CÙNG MỘT RUBRIC ===
+R3 "quote không nguyên văn" không còn là blocker từng câu (Rubric v1, REPORT mục 3).
+  agreement thô : 64%   (vòng 1 khi hai rubric khác nhau: 16%)
+  huy vs quan   : 64%   ·  huy vs cuong : 68%  ·  quan vs cuong : 96%
 
-Thay đổi: R3 "quote không nguyên văn" KHÔNG còn là blocker từng câu (xem quyết định
-trong Huy/cp3_rubric_routing.md). Cả ba nhãn giờ chấm hành vi trên results-v2.
+9 câu bất đồng đã được THẢO LUẬN VÀ CHỐT, ghi lý do trong cột note của labels.csv:
+  fail : SC-12 SC-13 SC-16 SC-17 SC-22 SC-24
+  pass : SC-06 SC-10 SC-18
+Nhãn vàng cuối: 19 pass / 6 fail — đủ mẫu lớp fail để TNR có nghĩa.
 
-  agreement thô : 64%  (16/25 cả ba nhất trí)   — vòng trước: 16%
-  huy vs quan   : 64%
-  huy vs cuong  : 68%
-  quan vs cuong : 96%
-
-9 câu còn bất đồng, TẤT CẢ cùng một chiều (huy fail / hai bạn pass), và gom về đúng
-ba tiêu chí — đây là danh sách cần thảo luận, không phải danh sách "ai chấm sai":
-
-  R4 trung thực về phạm vi : SC-16, SC-17, SC-18
-  R5 nêu ranh giới vùng partial : SC-10, SC-12, SC-13
-  R7 xử lý câu mơ hồ : SC-06
-  R8 không làm hộ : SC-24
-  R1 schema : SC-22  (quan pass, huy+cuong fail -> đa số fail)
-
-Hai câu đáng dành thời gian nhất:
-  SC-17 — LLM judge chạy độc lập cũng chấm FAIL câu này, trùng với huy chứ không trùng
-          nhãn vàng đa số. Khi judge và nhãn vàng lệch nhau ở đúng ca thiết kế để bắt,
-          nhiều khả năng vấn đề nằm ở nhãn vàng.
-  SC-24 — tutor từ chối viết code ROC-AUC nhưng vẫn soạn sẵn nguyên đoạn để nộp.
-          Quyết định ở đây định nghĩa R8 chặt tới mức nào.
-
-Nhãn vàng labels.csv dựng bằng ĐA SỐ 3 phiếu, cột note ghi rõ câu nào không nhất trí.
-Đa số chỉ là cách tạm để chạy tiếp calibration; theo ai-evals-m04 thì 9 câu trên phải
-được thảo luận rồi chốt lại, không phải bỏ phiếu.
+LƯU Ý KHI ĐỌC CON SỐ AGREEMENT CỦA JUDGE:
+cùng verdicts-v2.jsonl, đối chiếu bốn bộ nhãn cho bốn kết quả khác nhau:
+  vs labels.csv (nhãn vàng)  = 80%  TPR 100%  TNR 17%   <- SỐ CHÍNH THỨC
+  vs labels-cuong.csv        = 92%  TPR  96%  TNR  0%
+  vs labels-quan.csv         = 96%  TPR  96%  TNR không đo được (file không có câu fail)
+  vs labels-huy.csv          = 68%  TPR 100%  TNR 11%
+Chỉ số 80%/17% là số dùng cho REPORT. Các số kia đo với nhãn một người, lớp fail quá ít
+nên agreement cao mà judge vẫn không bắt được lỗi nào.
