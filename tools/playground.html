@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Playground tutor — xem trace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#f4f5f7; --surface:#fff; --surface-2:#eceef2;
+  --ink:#191b21; --muted:#6a6d7a; --line:#dfe1e8;
+  --accent:#2f4b7c; --accent-soft:#e6ecf7; --on-accent:#fff;
+  --pass:#17694f; --pass-bg:#e0f0e9;
+  --fail:#a02f45; --fail-bg:#f8e4e8;
+  --warn:#8a6410; --warn-bg:#f7eeda;
+  --shadow:0 1px 2px rgba(25,27,33,.06),0 8px 24px rgba(25,27,33,.06);
+  --ff-ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ff-q:"Source Serif 4",Georgia,serif;
+  --ff-m:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#131519; --surface:#1a1d23; --surface-2:#222630;
+  --ink:#e8e9ee; --muted:#979bab; --line:#2c303a;
+  --accent:#93b3ea; --accent-soft:#1e2735; --on-accent:#131519;
+  --pass:#5cc79e; --pass-bg:#16302a;
+  --fail:#f08298; --fail-bg:#341b23;
+  --warn:#dcab45; --warn-bg:#312716;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}}
+:root[data-theme="dark"]{
+  --paper:#131519; --surface:#1a1d23; --surface-2:#222630;
+  --ink:#e8e9ee; --muted:#979bab; --line:#2c303a;
+  --accent:#93b3ea; --accent-soft:#1e2735; --on-accent:#131519;
+  --pass:#5cc79e; --pass-bg:#16302a;
+  --fail:#f08298; --fail-bg:#341b23;
+  --warn:#dcab45; --warn-bg:#312716;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ff-ui);font-size:15px;line-height:1.6;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+kbd{font-family:var(--ff-m);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--muted)}
+
+header{display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{margin:0;font-family:var(--ff-q);font-size:17px;font-weight:600;white-space:nowrap}
+.pill{font-size:11.5px;font-family:var(--ff-m);background:var(--surface-2);color:var(--muted);padding:4px 9px;border-radius:99px;white-space:nowrap}
+.pill.live{background:var(--pass-bg);color:var(--pass)}
+.pill.off{background:var(--warn-bg);color:var(--warn)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 13px;font-size:13px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{opacity:.9;color:var(--on-accent)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(400px,480px);min-height:0}
+.left{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+.right{display:flex;flex-direction:column;min-width:0;background:var(--surface)}
+
+.thread{flex:1;overflow-y:auto;padding:22px 26px 10px}
+.thread-in{max-width:70ch;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.empty{color:var(--muted);text-align:center;padding:50px 10px}
+.empty h2{font-family:var(--ff-q);font-weight:600;font-size:20px;color:var(--ink);margin:0 0 6px}
+
+.turn{display:flex;flex-direction:column;gap:10px}
+.you{align-self:flex-end;max-width:85%;background:var(--accent);color:var(--on-accent);padding:10px 15px;border-radius:14px 14px 4px 14px}
+.slidectx{align-self:flex-end;font-size:12px;color:var(--muted)}
+.bot{background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:16px 18px;box-shadow:var(--shadow)}
+.scope{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:99px;margin-bottom:10px}
+.scope.in_scope{background:var(--pass-bg);color:var(--pass)}
+.scope.out_of_scope{background:var(--warn-bg);color:var(--warn)}
+.scope.err{background:var(--fail-bg);color:var(--fail)}
+.answer{white-space:pre-wrap}
+.srcs{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
+.srcs h4,.fups h4{margin:0;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.src{border-left:3px solid var(--line);padding-left:11px}
+.src.ok{border-left-color:var(--pass)}
+.src.bad{border-left-color:var(--fail)}
+.src button{background:none;border:0;padding:0;font-family:var(--ff-m);font-size:12px;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.src q{display:block;font-family:var(--ff-q);font-size:14px;color:var(--muted);margin-top:3px}
+.fups{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.fups button{text-align:left;background:none;border:1px dashed var(--line);border-radius:8px;padding:6px 11px;font-size:13.5px;color:var(--muted)}
+.fups button:hover{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.stat{font-size:11.5px;font-family:var(--ff-m);background:var(--surface-2);color:var(--muted);padding:3px 8px;border-radius:6px}
+
+.composer{border-top:1px solid var(--line);background:var(--surface);padding:12px 26px 14px}
+.composer-in{max-width:70ch;margin:0 auto;display:flex;flex-direction:column;gap:9px}
+.pickrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pickrow select{flex:1;min-width:220px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:inherit;font-size:13px;color:var(--ink)}
+.ask{display:flex;gap:9px;align-items:flex-end}
+.ask textarea{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 13px;font:inherit;font-size:14.5px;color:var(--ink);resize:vertical;min-height:52px}
+.gold{font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:9px 11px;display:none}
+.gold.on{display:block}
+.gold b{color:var(--ink)}
+
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:2}
+.tabs button{flex:1;border:0;background:none;padding:11px 8px;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.panel{flex:1;overflow-y:auto;padding:18px 20px 60px}
+.panel[hidden]{display:none}
+
+.step{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.step-h{background:var(--surface-2);padding:9px 13px;display:flex;gap:9px;align-items:center;font-size:12.5px}
+.step-h b{font-family:var(--ff-m);font-size:11px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px}
+.step-q{font-family:var(--ff-q);font-size:14.5px;padding:11px 13px 4px}
+.hits{padding:0 13px 11px;display:flex;flex-direction:column;gap:5px}
+.hit{display:flex;gap:8px;align-items:baseline;font-size:12px}
+.hit code{font-family:var(--ff-m);color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.hit i{color:var(--muted);font-style:normal;font-size:11px}
+.hit.used code{font-weight:600}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:9px}
+.chk .b{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;flex:none;margin-top:2px}
+.chk.pass .b{background:var(--pass-bg);color:var(--pass)}
+.chk.fail .b{background:var(--fail-bg);color:var(--fail)}
+.chk.skip .b{background:var(--surface-2);color:var(--muted)}
+.chk div{min-width:0}
+.chk b.n{font-family:var(--ff-m);font-size:12.5px}
+.chk p{margin:2px 0 0;font-size:12.5px;color:var(--muted);word-break:break-word}
+pre.raw{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px;overflow-x:auto;font-family:var(--ff-m);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;margin-bottom:16px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-family:var(--ff-m);font-size:12.5px;font-variant-numeric:tabular-nums}
+.hint{font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:10px 12px;line-height:1.7}
+.hint b{color:var(--ink)}
+
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;max-width:760px;width:calc(100% - 40px);max-height:82vh;box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(10,12,16,.55)}
+.dlg{padding:20px 24px;display:flex;flex-direction:column;gap:12px;max-height:82vh}
+.dlg h2{margin:0;font-family:var(--ff-m);font-size:14px;font-weight:500;color:var(--accent);word-break:break-all}
+.dlg .body{overflow-y:auto;white-space:pre-wrap;font-size:14px;line-height:1.7;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px}
+.dlg .row{display:flex;justify-content:flex-end;gap:9px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:99px;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (max-width:1000px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .right{border-top:1px solid var(--line);max-height:52vh}
+  .left{border-right:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Playground tutor</h1>
+  <span class="pill" id="model">…</span>
+  <span class="pill" id="trace">…</span>
+  <div class="spacer"></div>
+  <button class="btn" id="clear">Xoá hội thoại</button>
+  <button class="btn" id="theme" aria-label="Đổi nền sáng tối">◐</button>
+</header>
+
+<main>
+  <section class="left">
+    <div class="thread" id="thread">
+      <div class="thread-in" id="thread-in">
+        <div class="empty">
+          <h2>Hỏi thử tutor</h2>
+          <p>Chọn một câu trong dataset, hoặc tự gõ. Mỗi lượt chạy đúng vòng tool-calling
+             của <code>run_eval.py</code> — trace hiện ở cột phải.</p>
+        </div>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="composer-in">
+        <div class="pickrow">
+          <select id="pick"><option value="">— chọn câu từ dataset.jsonl —</option></select>
+          <button class="btn" id="clearpick">Câu tự do</button>
+        </div>
+        <div class="gold" id="gold"></div>
+        <div class="ask">
+          <textarea id="q" placeholder="Gõ câu hỏi như học viên thật… (Ctrl+Enter để gửi)"></textarea>
+          <button class="btn primary" id="send">Gửi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="right">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-p="trace">Trace</button>
+      <button role="tab" aria-selected="false" data-p="checks">Làn code</button>
+      <button role="tab" aria-selected="false" data-p="raw">JSON thô</button>
+    </div>
+    <div class="panel" id="p-trace"><p class="hint">Gửi một câu để xem tutor gọi <b>kb_search</b> mấy vòng, với truy vấn gì, lấy ra section nào.</p></div>
+    <div class="panel" id="p-checks" hidden></div>
+    <div class="panel" id="p-raw" hidden></div>
+  </aside>
+</main>
+
+<dialog id="dlg"><div class="dlg">
+  <h2 id="dlg-t"></h2>
+  <div class="body" id="dlg-b"></div>
+  <div class="row"><button class="btn" id="dlg-x">Đóng</button></div>
+</div></dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let ROWS = [], last = null, busy = false;
+
+/* ---------- boot ---------- */
+fetch("/api/boot").then(r => r.json()).then(b => {
+  $("model").textContent = "tutor: " + b.model;
+  const t = b.trace_backend || "";
+  const off = /noop/i.test(t);
+  $("trace").textContent = off ? "trace: TẮT" : "trace: " + t.replace(/Tracer$/, "");
+  $("trace").className = "pill " + (off ? "off" : "live");
+  $("trace").title = off
+    ? "Chưa có BRAINTRUST_API_KEY hoặc LANGSMITH_API_KEY trong .env — không có trace nào được ghi"
+    : "Mỗi lượt hỏi được ghi thành một trace";
+  ROWS = b.rows || [];
+  $("pick").innerHTML = '<option value="">— chọn câu từ dataset.jsonl —</option>' +
+    ROWS.map((r, i) => '<option value="' + i + '">' + esc(r.scenario_id) + " · " + esc(r.tier) + " — " + esc(r.input.slice(0, 46)) + "…</option>").join("");
+});
+
+$("pick").onchange = () => {
+  const r = ROWS[$("pick").value];
+  if(!r) return;
+  $("q").value = r.input;
+  $("gold").className = "gold on";
+  $("gold").innerHTML = "<b>Đúng phải thế nào —</b> " + esc(r.expected_behavior || "(không có gold label)") +
+    (r.anchors && r.anchors.length ? "<br><b>Nguồn hợp lệ:</b> " + r.anchors.map(a => "<code>" + esc(a) + "</code>").join(" · ") : "");
+};
+$("clearpick").onclick = () => { $("pick").value = ""; $("q").value = ""; $("gold").className = "gold"; $("q").focus(); };
+
+/* ---------- hỏi ---------- */
+async function send(text){
+  const q = (text != null ? text : $("q").value).trim();
+  if(!q || busy) return;
+  busy = true; $("send").disabled = true;
+  const r = ROWS[$("pick").value];
+  const slide = (r && r.input === q) ? r.slide : null;
+
+  const inb = $("thread-in");
+  if(inb.querySelector(".empty")) inb.innerHTML = "";
+  const turn = document.createElement("div");
+  turn.className = "turn";
+  turn.innerHTML = '<div class="you">' + esc(q) + "</div>" +
+    (slide ? '<div class="slidectx">kèm bối cảnh slide ' + esc(slide.id) + "</div>" : "") +
+    '<div class="bot"><span class="spin"></span> tutor đang tra corpus…</div>';
+  inb.appendChild(turn);
+  $("thread").scrollTop = $("thread").scrollHeight;
+
+  try{
+    const res = await fetch("/api/ask", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({question:q, slide})}).then(x => x.json());
+    if(res.error) throw new Error(res.error);
+    last = res;
+    turn.querySelector(".bot").outerHTML = botHtml(res);
+    paintTrace(res); paintChecks(res); paintRaw(res);
+    wire(turn);
+  }catch(e){
+    turn.querySelector(".bot").innerHTML = '<span class="scope err">lỗi</span><div class="answer">' + esc(e.message) + "</div>";
+  }finally{
+    busy = false; $("send").disabled = false;
+    $("thread").scrollTop = $("thread").scrollHeight;
+  }
+}
+$("send").onclick = () => send();
+$("q").addEventListener("keydown", e => { if(e.key === "Enter" && (e.ctrlKey || e.metaKey)) send(); });
+
+/* ---------- render câu trả lời ---------- */
+function botHtml(res){
+  const o = res.output || {};
+  const badSrc = {};
+  (res.checks || []).forEach(c => {
+    if(c.status === "fail" && c.reason){
+      const m = String(c.reason).match(/([\w-]+)#?([\w-]+)?/g);
+      if(m) m.forEach(x => badSrc[x] = true);
+    }
+  });
+  const srcs = (o.sources || []).map(s => {
+    const id = s.doc_id + "#" + s.section_id;
+    const bad = Object.keys(badSrc).some(k => k.includes(s.section_id));
+    return '<div class="src ' + (bad ? "bad" : "ok") + '">' +
+      '<button data-doc="' + esc(s.doc_id) + '" data-sec="' + esc(s.section_id) + '">' + esc(id) + "</button>" +
+      (s.quote ? "<q>" + esc(s.quote) + "</q>" : "") + "</div>";
+  }).join("");
+  const fups = (o.followup_questions || []).map(f => "<button data-f=\"" + esc(f) + "\">" + esc(f) + "</button>").join("");
+  const u = res.usage || {};
+  return '<div class="bot">' +
+    '<span class="scope ' + esc(o.scope || "err") + '">' + esc(o.scope || "không có scope") + "</span>" +
+    '<div class="answer">' + esc(o.answer || o._parse_error || "(không có answer)") + "</div>" +
+    (srcs ? '<div class="srcs"><h4>Nguồn tutor trích</h4>' + srcs + "</div>" : "") +
+    (fups ? '<div class="fups"><h4>Câu hỏi gợi ý — bấm để hỏi tiếp</h4>' + fups + "</div>" : "") +
+    '<div class="stats">' +
+      '<span class="stat">' + res.wall_s + "s</span>" +
+      '<span class="stat">' + (u.total_tokens != null ? u.total_tokens : "?") + " tok</span>" +
+      '<span class="stat">' + (res.cost_usd != null ? "$" + res.cost_usd.toFixed(6) : "$?") + "</span>" +
+      '<span class="stat">' + res.steps + " vòng</span>" +
+      '<span class="stat">' + (res.tool_calls || []).length + " lần kb_search</span>" +
+      (res.traced ? '<span class="stat">đã ghi trace</span>' : "") +
+      (res.finish_reason === "length" ? '<span class="stat">BỊ CẮT</span>' : "") +
+    "</div></div>";
+}
+function wire(scope){
+  scope.querySelectorAll(".src button").forEach(b => b.onclick = () => showSection(b.dataset.doc, b.dataset.sec));
+  scope.querySelectorAll(".fups button").forEach(b => b.onclick = () => { $("pick").value = ""; $("gold").className = "gold"; send(b.dataset.f); });
+}
+
+/* ---------- panels ---------- */
+function paintTrace(res){
+  const used = new Set((res.output && res.output.sources || []).map(s => s.doc_id + "#" + s.section_id));
+  const steps = (res.tool_calls || []).map((tc, i) =>
+    '<div class="step"><div class="step-h"><b>vòng ' + (i + 1) + '</b> kb_search</div>' +
+    '<div class="step-q">“' + esc(tc.query) + '”</div>' +
+    '<div class="hits">' + tc.hits.map((h, k) =>
+      '<div class="hit ' + (used.has(h) ? "used" : "") + '">' +
+      '<code data-h="' + esc(h) + '">' + esc(h) + "</code>" +
+      (used.has(h) ? "<i>→ được cite</i>" : "<i>không dùng</i>") + "</div>").join("") +
+    "</div></div>").join("");
+  $("p-trace").innerHTML =
+    '<dl class="kv"><dt>Model</dt><dd>' + esc(res.model) + "</dd>" +
+    "<dt>Số vòng</dt><dd>" + res.steps + "</dd>" +
+    "<dt>Kết thúc</dt><dd>" + esc(res.finish_reason || "?") + "</dd>" +
+    "<dt>Độ trễ</dt><dd>" + res.latency_s + " s</dd>" +
+    "<dt>Token</dt><dd>" + JSON.stringify(res.usage) + "</dd>" +
+    "<dt>Chi phí</dt><dd>" + (res.cost_usd != null ? "$" + res.cost_usd.toFixed(6) : "?") + "</dd></dl>" +
+    (steps || '<p class="hint">Tutor <b>không gọi kb_search lần nào</b> — nó trả lời thẳng. Với câu in-scope thì đây là một failure mode: trả lời không dựa trên corpus.</p>');
+  $("p-trace").querySelectorAll(".hit code").forEach(c => c.onclick = () => {
+    const [d, s] = c.dataset.h.split("#"); showSection(d, s);
+  });
+}
+function paintChecks(res){
+  $("p-checks").innerHTML = (res.checks || []).map(c =>
+    '<div class="chk ' + c.status + '"><span class="b">' + (c.status === "pass" ? "đạt" : c.status === "fail" ? "hỏng" : "bỏ qua") + "</span>" +
+    '<div><b class="n">' + esc(c.name) + "</b>" + (c.reason ? "<p>" + esc(c.reason) + "</p>" : "") + "</div></div>").join("") +
+    '<p class="hint">Đây là <b>đúng ba rule</b> trong <code>eval/code_checks.py</code> đang chạy trên câu trả lời vừa rồi. Thêm rule vào file đó thì nó tự hiện ở đây.</p>';
+}
+function paintRaw(res){
+  $("p-raw").innerHTML =
+    "<h4 style=\"margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)\">Output đã parse</h4>" +
+    '<pre class="raw">' + esc(JSON.stringify(res.output, null, 2)) + "</pre>" +
+    "<h4 style=\"margin:16px 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)\">Chuỗi thô model trả về</h4>" +
+    '<pre class="raw">' + esc(res.raw_content || "") + "</pre>";
+}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  ["trace","checks","raw"].forEach(p => $("p-" + p).hidden = p !== b.dataset.p);
+});
+
+/* ---------- xem section corpus ---------- */
+async function showSection(doc, sec){
+  const r = await fetch("/api/section?doc=" + encodeURIComponent(doc) + "&sec=" + encodeURIComponent(sec)).then(x => x.json());
+  $("dlg-t").textContent = doc + "#" + sec;
+  $("dlg-b").textContent = r.text || r.error || "";
+  $("dlg").showModal();
+}
+$("dlg-x").onclick = () => $("dlg").close();
+
+$("clear").onclick = () => {
+  $("thread-in").innerHTML = '<div class="empty"><h2>Hỏi thử tutor</h2><p>Chọn một câu trong dataset, hoặc tự gõ.</p></div>';
+  ["trace","checks","raw"].forEach(p => $("p-" + p).innerHTML = "");
+  $("p-trace").innerHTML = '<p class="hint">Gửi một câu để xem trace.</p>';
+};
+const root = document.documentElement;
+try{ const t = localStorage.getItem("md-theme"); if(t) root.setAttribute("data-theme", t); }catch(e){}
+$("theme").onclick = () => {
+  const cur = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  try{ localStorage.setItem("md-theme", next) }catch(e){}
+};
+</script>
+</body>
+</html>

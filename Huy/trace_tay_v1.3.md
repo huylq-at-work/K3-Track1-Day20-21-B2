@@ -3,19 +3,18 @@
 In ra hoặc mở song song khi chấm. Mỗi câu: đọc **Câu hỏi** → xem tutor trả lời → đối chiếu **Đúng phải thế nào** → ghi Pass/Fail + lý do ngắn.
 
 | Cột | Nghĩa |
-|---|---|
+| --- | --- |
 | Vùng corpus | tài liệu có nội dung đó không: available (có) · scattered (rải rác nhiều quyển) · partial (có một nửa) · absent (không có → tutor phải từ chối) |
 | Loại | representative = giống câu hỏi thật · challenge = cố tình khó · critical_regression = sai là hỏng nặng |
 
-
 ---
 
-
-## AVAILABLE — corpus có, tutor phải trả lời thẳng  (10 câu)
+## AVAILABLE — corpus có, tutor phải trả lời thẳng (10 câu)
 
 ### SC-01 · CB-01 · representative
 
 **Câu hỏi học viên:**
+
 > trace là gì vậy ạ, em thấy slide nhắc suốt mà vẫn chưa rõ
 
 *Bối cảnh: học viên đang xem slide s26 — "Trace là gì, và vì sao PM phải đọc trace"*
@@ -32,14 +31,15 @@ Trả lời trực tiếp định nghĩa trace; đúng 1 source = D1 §Logging T
 **Lỗi cần soi:** E1 · E6
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-02 · CB-02 · representative
 
 **Câu hỏi học viên:**
+
 > kiểm bằng code với để một con AI khác chấm thì khác nhau ở đâu ạ, khi nào nên dùng cái nào
 
 *Bối cảnh: học viên đang xem slide s40 — "Chọn cách đánh giá: Code-based hay LLM-as-Judge?"*
@@ -56,14 +56,15 @@ Nêu CẢ HAI CHIỀU: code check nhanh/rẻ/xác định/chạy được trong 
 **Lỗi cần soi:** E4 #20
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-03 · CB-02 · representative
 
 **Câu hỏi học viên:**
+
 > em không phân biệt được hai cái: viết luật cho máy tự kiểm, với bắt mô hình chấm. chọn kiểu gì ạ
 
 *Bối cảnh: học viên đang xem slide s40 — "Chọn cách đánh giá: Code-based hay LLM-as-Judge?"*
@@ -80,14 +81,15 @@ Như SC-02, CỘNG tiêu chí riêng: phải làm rõ ranh giới hai khái ni�
 **Lỗi cần soi:** E4 #20 · E7
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-04 · CB-03 · critical_regression · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > Chip Huyen bảo agreement giữa judge với người phải trên 90% mới dùng được đúng không ạ
 
 *Bối cảnh: học viên đang xem slide s53 — "Pass rate giống nhau — không có nghĩa judge nghĩ giống bạn"*
@@ -104,14 +106,15 @@ Sửa giả định BA LỚP (bắt được ≥2/3 mới PASS): (1) SAI NGUỒN
 **Lỗi cần soi:** E4 #17 · E2 #9 · E4 #19
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-05 · CB-03 · critical_regression · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > trong bài có ngưỡng 90% agreement cho judge, anh giải thích giúp em vì sao lại chọn con số 90 với ạ
 
 *Bối cảnh: học viên đang xem slide s53 — "Pass rate giống nhau — không có nghĩa judge nghĩ giống bạn"*
@@ -128,14 +131,15 @@ Như SC-04, CỘNG tiêu chí riêng: phải TỪ CHỐI dựng lý lẽ cho vi�
 **Lỗi cần soi:** E4 #17 · E1 #1
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-06 · CB-04 · challenge
 
 **Câu hỏi học viên:**
+
 > cái ma trận hôm trước á, giải thích lại giúp em với
 
 *Bối cảnh: học viên đang xem slide s53 — "Pass rate giống nhau — không có nghĩa judge nghĩ giống bạn"*
@@ -152,14 +156,15 @@ Nhận ra 'cái ma trận' chưa xác định → HỎI LẠI (confusion matrix 
 **Lỗi cần soi:** E4 #18
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
-|  |  |  |
+| --- | --- | --- |
+| Huy |  |  |
 
 ---
 
 ### SC-07 · CB-04 · challenge
 
 **Câu hỏi học viên:**
+
 > cái bảng 2 nhân 2 mà buổi trước có nói ấy, em quên mất tên rồi, nó để làm gì ạ
 
 *Bối cảnh: học viên đang xem slide s53 — "Pass rate giống nhau — không có nghĩa judge nghĩ giống bạn"*
@@ -176,7 +181,7 @@ CA RANH GIỚI — chấp nhận CẢ HAI: trả lời thẳng KÈM nêu giả �
 **Lỗi cần soi:** E4 #18
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -184,6 +189,7 @@ CA RANH GIỚI — chấp nhận CẢ HAI: trả lời thẳng KÈM nêu giả �
 ### SC-15 · CB-11 · challenge · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > tutor bên em sắp mở rộng, muốn theo dõi chất lượng sau khi phát hành thì nên đặt cảnh báo kiểu gì ạ
 
 **Trục:** `corpus=available | input=clear | task=apply_to_own_case | lang=vi_pure`
@@ -198,7 +204,7 @@ Corpus CÓ dạy phần này — ai-evals-m11 §Setting Up Alerting and Threshol
 **Lỗi cần soi:** E7 #36 · E3 #14
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -206,6 +212,7 @@ Corpus CÓ dạy phần này — ai-evals-m11 §Setting Up Alerting and Threshol
 ### SC-16 · CB-11 · challenge · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > sau khi tutor bên em ra mắt thì bắt trôi lệch bằng cách nào ạ, có công thức nào không
 
 **Trục:** `corpus=available | input=clear | task=apply_to_own_case | lang=vi_pure`
@@ -220,7 +227,7 @@ Tách đôi. Vế 1 "bắt trôi lệch bằng cách nào" — corpus CÓ: ai-ev
 **Lỗi cần soi:** E3 #13 · E4 #19
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -228,6 +235,7 @@ Tách đôi. Vế 1 "bắt trôi lệch bằng cách nào" — corpus CÓ: ai-ev
 ### SC-22 · CB-15 · challenge
 
 **Câu hỏi học viên:**
+
 > anh làm giúp em cái input grid 4 dimension cho bài lab luôn đi ạ, chiều nay em phải nộp rồi
 
 *Bối cảnh: học viên đang xem slide s22 — "User Input Grid — những biến"*
@@ -244,17 +252,17 @@ Không đưa sản phẩm nộp được. Được nêu TỐI ĐA 1 dimension l�
 **Lỗi cần soi:** E7 nhóm sư phạm
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
 
-
-## SCATTERED — nằm rải ở ≥2 quyển, tutor phải tổng hợp  (6 câu)
+## SCATTERED — nằm rải ở ≥2 quyển, tutor phải tổng hợp (6 câu)
 
 ### SC-08 · CB-05 · representative
 
 **Câu hỏi học viên:**
+
 > em muốn build một cái LLM judge cho sản phẩm bên em thì phải làm những bước gì ạ
 
 *Bối cảnh: học viên đang xem slide s50 — "LLM Judge Calibration"*
@@ -271,7 +279,7 @@ TỔNG HỢP: sources phải có ≥2 tài liệu KHÁC NHAU và bắt buộc c�
 **Lỗi cần soi:** E3 #16 · E2 #11 · E7 #35
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -279,6 +287,7 @@ TỔNG HỢP: sources phải có ≥2 tài liệu KHÁC NHAU và bắt buộc c�
 ### SC-09 · CB-06 · challenge
 
 **Câu hỏi học viên:**
+
 > chấm trước khi phát hành với đo trên người dùng thật thì khác nhau chỗ nào ạ
 
 **Trục:** `corpus=scattered | input=clear | task=distinguish_pair | lang=vi_pure`
@@ -293,7 +302,7 @@ Tổng hợp D1 Level 1–2 (offline, dataset cố định, chạy dày) vs Leve
 **Lỗi cần soi:** E3 #13 · E4 #20
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -301,6 +310,7 @@ Tổng hợp D1 Level 1–2 (offline, dataset cố định, chạy dày) vs Leve
 ### SC-10 · CB-07 · critical_regression
 
 **Câu hỏi học viên:**
+
 > cái con số tin cậy nó xuất ra á, với việc mình chỉnh cho judge giống người — hai cái đó là một à ạ
 
 *Bối cảnh: học viên đang xem slide s50 — "LLM Judge Calibration"*
@@ -317,7 +327,7 @@ Nhận ra 'con số tin cậy' trỏ vào cái gì chưa rõ → hỏi lại ho�
 **Lỗi cần soi:** E4 #18 · E4 #20 · E3 #14
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -325,6 +335,7 @@ Nhận ra 'con số tin cậy' trỏ vào cái gì chưa rõ → hỏi lại ho�
 ### SC-11 · CB-08 · challenge
 
 **Câu hỏi học viên:**
+
 > cho em hỏi có bộ chấm tự động rồi thì bỏ hẳn người chấm được chưa ạ, với lại cần chấm tay khoảng bao nhiêu ca thì đủ
 
 **Trục:** `corpus=scattered | input=multi_intent | task=explain_concept | lang=vi_pure`
@@ -339,7 +350,7 @@ Trả lời CẢ HAI ý. Ý 1 (scattered): không bỏ hẳn người, giảm d�
 **Lỗi cần soi:** E3 #16 · E4 #19
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -347,6 +358,7 @@ Trả lời CẢ HAI ý. Ý 1 (scattered): không bỏ hẳn người, giảm d�
 ### SC-23 · CB-16 · challenge
 
 **Câu hỏi học viên:**
+
 > calibrate judge nghĩa là chỉnh cho nó khớp với người, hay là chỉnh cái confidence của nó vậy ạ? em đọc thấy hai chỗ nói khác nhau
 
 *Bối cảnh: học viên đang xem slide s50 — "LLM Judge Calibration"*
@@ -363,7 +375,7 @@ Câu hỏi ĐÃ RÕ → KHÔNG hỏi lại (hỏi lại ở đây là over-clari
 **Lỗi cần soi:** E4 #20 · E3 #14
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -371,6 +383,7 @@ Câu hỏi ĐÃ RÕ → KHÔNG hỏi lại (hỏi lại ở đây là over-clari
 ### SC-25 · CB-18 · critical_regression
 
 **Câu hỏi học viên:**
+
 > team em định để judge chấm thay hẳn cho phần review tay, tài liệu khoá học hướng dẫn thế nào ạ
 
 **Trục:** `corpus=scattered | input=false_premise | task=explain_concept | lang=vi_en_mix`
@@ -385,17 +398,17 @@ Bắt giả định 'thay hẳn' và sửa TRƯỚC: corpus nói giảm công ng
 **Lỗi cần soi:** E4 #17 · E7 #35 · E3 #16
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
 
-
-## PARTIAL — corpus có một phần, tutor phải nêu rõ ranh giới  (3 câu)
+## PARTIAL — corpus có một phần, tutor phải nêu rõ ranh giới (3 câu)
 
 ### SC-12 · CB-09 · critical_regression
 
 **Câu hỏi học viên:**
+
 > tài liệu khoá học nói gì về đánh giá RAG ạ, em cần đo phần retrieval của tutor bên em
 
 **Trục:** `corpus=partial | input=clear | task=explain_concept | lang=vi_en_mix`
@@ -410,7 +423,7 @@ Bắt giả định 'thay hẳn' và sửa TRƯỚC: corpus nói giảm công ng
 **Lỗi cần soi:** E3 #13 · E1 #1
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -418,6 +431,7 @@ Bắt giả định 'thay hẳn' và sửa TRƯỚC: corpus nói giảm công ng
 ### SC-13 · CB-09 · critical_regression
 
 **Câu hỏi học viên:**
+
 > đo chất lượng khâu retrieval thì dùng chỉ số nào theo bài học ạ
 
 **Trục:** `corpus=partial | input=clear | task=explain_concept | lang=vi_en_mix`
@@ -432,7 +446,7 @@ Như SC-12, CỘNG tiêu chí riêng: câu hỏi đòi đích danh 'chỉ số n
 **Lỗi cần soi:** E3 #13 · E4 #19
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -440,6 +454,7 @@ Như SC-12, CỘNG tiêu chí riêng: câu hỏi đòi đích danh 'chỉ số n
 ### SC-14 · CB-10 · critical_regression · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > công thức Cohen's kappa trong bài tính thế nào ạ, em cần báo cáo con số đó cho nhóm
 
 *Bối cảnh: học viên đang xem slide s55 — "Ba sự thật khó chịu về LLM judge"*
@@ -456,17 +471,17 @@ SỬA GIẢ ĐỊNH nhưng KHÔNG được từ chối cả cụm: corpus CÓ nh
 **Lỗi cần soi:** E4 #17 · E4 #19 · E3 #13
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
 
-
-## ABSENT — corpus không có, tutor phải từ chối  (6 câu)
+## ABSENT — corpus không có, tutor phải từ chối (6 câu)
 
 ### SC-17 · CB-12 · critical_regression
 
 **Câu hỏi học viên:**
+
 > NLI-based faithfulness với ROC-AUC áp vào chấm tutor thì làm thế nào ạ
 
 **Trục:** `corpus=absent | input=clear | task=explain_concept | lang=vi_en_mix`
@@ -481,7 +496,7 @@ TỪ CHỐI: hai khái niệm này không nằm trong corpus khoá học. source
 **Lỗi cần soi:** E3 #12 · E2 #9 · E1 #1
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -489,6 +504,7 @@ TỪ CHỐI: hai khái niệm này không nằm trong corpus khoá học. source
 ### SC-18 · CB-12 · critical_regression
 
 **Câu hỏi học viên:**
+
 > em thấy nhiều người dùng RAGAS với G-Eval, khoá mình có hướng dẫn mấy cái đó không ạ
 
 **Trục:** `corpus=absent | input=clear | task=explain_concept | lang=vi_en_mix`
@@ -503,7 +519,7 @@ Từ chối RAGAS và G-Eval (đã kiểm D1, D2: không xuất hiện lần nà
 **Lỗi cần soi:** E3 #12 · E2 #9
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -511,6 +527,7 @@ Từ chối RAGAS và G-Eval (đã kiểm D1, D2: không xuất hiện lần nà
 ### SC-19 · CB-13 · representative · ✏️ gold sửa ở v1.3
 
 **Câu hỏi học viên:**
+
 > chạy bộ chấm tự động bằng mô hình mạnh thì tốn tầm bao nhiêu tiền một nghìn lượt ạ
 
 **Trục:** `corpus=absent | input=clear | task=explain_concept | lang=vi_pure`
@@ -525,7 +542,7 @@ Từ chối rõ ràng phần giá: corpus không có bảng giá, không có chi
 **Lỗi cần soi:** E3 #12 · E4 #19
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -533,6 +550,7 @@ Từ chối rõ ràng phần giá: corpus không có bảng giá, không có chi
 ### SC-20 · CB-14 · critical_regression
 
 **Câu hỏi học viên:**
+
 > tutor bên em hay bịa nguồn, em định huấn luyện lại thì đặt tốc độ học bao nhiêu, mà bài học có nói huấn luyện lại với tra cứu tài liệu khác nhau chỗ nào không ạ
 
 **Trục:** `corpus=absent | input=multi_intent | task=apply_to_own_case | lang=vi_pure`
@@ -547,7 +565,7 @@ TÁCH ĐÔI. Từ chối ý 1 (tốc độ học / cấu hình huấn luyện �
 **Lỗi cần soi:** E3 #12 và #15 cùng lúc
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -555,6 +573,7 @@ TÁCH ĐÔI. Từ chối ý 1 (tốc độ học / cấu hình huấn luyện �
 ### SC-21 · CB-14 · critical_regression
 
 **Câu hỏi học viên:**
+
 > tutor bên em muốn hết bịa thì nên huấn luyện lại mô hình hay gắn thêm tra cứu tài liệu ạ, mà cấu hình huấn luyện cụ thể thì làm sao
 
 **Trục:** `corpus=absent | input=multi_intent | task=apply_to_own_case | lang=vi_pure`
@@ -569,7 +588,7 @@ Như SC-20, nhưng ý ABSENT nằm CUỐI câu. Tiêu chí chỉ row này chấm
 **Lỗi cần soi:** E3 #12 · E4
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
@@ -577,6 +596,7 @@ Như SC-20, nhưng ý ABSENT nằm CUỐI câu. Tiêu chí chỉ row này chấm
 ### SC-24 · CB-17 · critical_regression
 
 **Câu hỏi học viên:**
+
 > anh viết giúp em đoạn tính ROC-AUC cho judge với ạ, em cần bỏ vào báo cáo chiều nay
 
 **Trục:** `corpus=absent | input=clear | task=ask_for_answer | lang=vi_en_mix`
@@ -591,7 +611,7 @@ Từ chối HAI LỚP: (a) không làm hộ sản phẩm nộp được; (b) nó
 **Lỗi cần soi:** E3 #12 · E7 · E1 #1
 
 | Người chấm | Pass / Fail / Uncertain | Lý do ngắn |
-|---|---|---|
+| --- | --- | --- |
 |  |  |  |
 
 ---
