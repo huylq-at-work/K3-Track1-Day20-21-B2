@@ -1,3 +1,8 @@
+> **Đây là ảnh chụp VÒNG 1**, đối chiếu với nhãn vàng *trước khi* nhóm thảo luận 9 câu
+> bất đồng (khi đó `labels.csv` mới chỉ có 1 câu fail). Giữ lại để đối chiếu tiến trình.
+> **Số liệu chính thức nằm ở REPORT mục 5** — vòng 2 với nhãn vàng đã chốt 6 câu fail:
+> agreement 80%, TPR 100%, TNR 17%.
+
 # Calibration vòng 1 — judge prompt v2 trên results-v2
 
 Judge: `openai/gpt-4o-mini` · Tutor: `deepseek/deepseek-v4-flash` — khác họ model (slide s55).
