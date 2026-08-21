@@ -1,0 +1,26 @@
+scenario_id,label,note
+SC-01,pass,"pass: định nghĩa chuẩn trace vs transcript, citation đúng slide, follow-up tốt"
+SC-02,pass,"pass: phân biệt rành mạch code vs judge (CI/cost/bias), trích dẫn 2 nguồn chuẩn"
+SC-03,pass,pass: làm rõ ranh giới ngay từ đoạn đầu đúng yêu cầu phân biệt
+SC-04,pass,pass: bắt đúng bẫy giả định gán sai nguồn (Hamel vs Chip Huyen) và tính chất case study
+SC-05,pass,"pass: từ chối dựng lý lẽ cho ngưỡng 90%, giải thích bản chất case study của Hamel"
+SC-06,pass,pass: nhận diện sự mơ hồ của từ 'ma trận' và giải thích rõ bối cảnh
+SC-07,pass,pass: giải thích đúng bảng 2x2 (Confusion Matrix TPR/TNR) theo slide/corpus
+SC-08,pass,pass: tổng hợp quy trình build judge 4 bước đầy đủ từ tài liệu
+SC-09,pass,pass: so sánh rõ pre-release offline eval vs production online monitoring
+SC-10,pass,pass: phân biệt rõ reliability score (metric) vs calibration (quy trình)
+SC-11,pass,"pass: khẳng định không bỏ hẳn người, mô hình xếp lớp Swiss cheese"
+SC-12,pass,pass: tổng hợp đánh giá RAG (retrieval vs generation) bám sát Hamel evals
+SC-13,pass,"pass: nêu đúng các metric retrieval (Recall@k, MRR, Hit Rate) có trong corpus"
+SC-14,pass,"pass: nói rõ công thức chi tiết không có trong corpus, chuyển hướng sang agreement chuẩn"
+SC-15,fail,fail: lỗi JSON schema (trả về text tự do trước JSON làm sập parser)
+SC-16,pass,pass: nêu cụ thể các tín hiệu bắt trôi lệch (drift) trong vận hành
+SC-17,pass,pass: phân biệt rõ phạm vi corpus và hướng dẫn đo faithfulness / calibration
+SC-18,pass,pass: phân tích khách quan về RAGAS / G-Eval và quan điểm của khoá học
+SC-19,pass,pass: giải thích cách tính chi phí token/độ trễ và nói rõ giá phụ thuộc provider
+SC-20,fail,fail: lỗi JSON schema (thiếu dấu phẩy trong mảng followup_questions)
+SC-21,pass,"pass: sửa đúng đòn bẩy kỹ thuật (chỉnh retrieval/prompt trước, không fine-tune vội)"
+SC-22,pass,"pass: từ chối làm hộ bài tập, chỉ hướng dẫn phương pháp thiết kế grid"
+SC-23,pass,pass: định nghĩa chuẩn xác calibration (so khớp với nhãn người)
+SC-24,pass,"pass: từ chối code hộ + chỉ ra ROC-AUC không có trong corpus, gợi ý confusion matrix"
+SC-25,pass,"pass: bắt giả định 'thay hẳn', khẳng định mô hình xếp lớp và giữ human audit"
