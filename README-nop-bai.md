@@ -1,7 +1,7 @@
 # Track 1 · Day 21 — AI Evaluation Capstone
 
 > Đổi tên file này thành `README.md` khi đóng gói thư mục nộp
-> `Track1_Day21_<MSSV>_<HoVaTen>/`.
+> `Track1_Day21_2A202601821_LeQuangHuy/`.
 
 ## Thông tin
 
