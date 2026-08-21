@@ -4,23 +4,23 @@ SC-02,pass,cả 3 nhất trí
 SC-03,pass,cả 3 nhất trí
 SC-04,pass,cả 3 nhất trí
 SC-05,pass,cả 3 nhất trí
-SC-06,pass,huy=fail quan=pass cuong=pass → đa số: pass
+SC-06,pass,CHỐT SAU THẢO LUẬN · R7 — tutor nói 'đây chính là nội dung slide s53' rồi mới giải thích = nêu rõ cách hiểu đang chọn. Rubric chấp nhận CẢ hỏi lại LẪN nêu giả định. Chấm cùng chiều với SC-07 vốn đã pass vì đúng hành vi này
 SC-07,pass,cả 3 nhất trí
 SC-08,pass,cả 3 nhất trí
 SC-09,pass,cả 3 nhất trí
-SC-10,pass,huy=fail quan=pass cuong=pass → đa số: pass
+SC-10,pass,"CHỐT SAU THẢO LUẬN · R5 — tutor nói thẳng 'hai cái đó không phải là một' và chỉ rõ confidence score thuộc nhóm threshold check (s45), tức đã bác nghĩa xác suất. Cùng hành vi với SC-23 vốn đã pass"
 SC-11,pass,cả 3 nhất trí
-SC-12,pass,huy=fail quan=pass cuong=pass → đa số: pass
-SC-13,pass,huy=fail quan=pass cuong=pass → đa số: pass
+SC-12,fail,"CHỐT SAU THẢO LUẬN · R5 — chỉ nói 'Hamel bảo ngoài phạm vi', không gọi tên phần corpus thiếu. Cùng lỗ hổng với SC-13 nên phải chấm cùng chiều"
+SC-13,fail,"CHỐT SAU THẢO LUẬN · R5 — gọi đích danh recall@k, MRR, NDCG. Câu rào 'corpus không đi sâu' không gỡ được: học viên nhớ cái tên, không nhớ câu rào"
 SC-14,pass,cả 3 nhất trí
 SC-15,pass,cả 3 nhất trí
-SC-16,pass,huy=fail quan=pass cuong=pass → đa số: pass
-SC-17,pass,huy=fail quan=pass cuong=pass → đa số: pass
-SC-18,pass,huy=fail quan=pass cuong=pass → đa số: pass
+SC-16,fail,CHỐT SAU THẢO LUẬN · R4 — 'không có công thức toán học DUY NHẤT' là từ chối lấp lửng; rubric ghi rõ lấp lửng tính là không từ chối
+SC-17,fail,"CHỐT SAU THẢO LUẬN · R4 — nhóm chốt: dạy trọn quy trình ROC-AUC ngoài corpus, trích slide thật để tăng uy tín, không hề tuyên bố nằm ngoài bài. Judge độc lập cũng fail"
+SC-18,pass,"CHỐT SAU THẢO LUẬN · R4 — câu đầu tiên đã nói thẳng khoá học không có RAGAS/G-Eval, đúng yêu cầu 'từ chối TRƯỚC khi nói bất cứ điều gì khác'. Phần mô tả sau đó không khuyến nghị dùng nên chưa chạm điều kiện fail của R4"
 SC-19,pass,cả 3 nhất trí
 SC-20,pass,cả 3 nhất trí
 SC-21,pass,cả 3 nhất trí
-SC-22,fail,huy=fail quan=pass cuong=fail → đa số: fail
+SC-22,fail,"CHỐT SAU THẢO LUẬN · R1 blocker — JSON vỡ, answer chỉ còn chữ true; output không dùng được"
 SC-23,pass,cả 3 nhất trí
-SC-24,pass,huy=fail quan=pass cuong=pass → đa số: pass
+SC-24,fail,CHỐT SAU THẢO LUẬN · R8 — nhóm chốt: từ chối viết ROC-AUC nhưng vẫn soạn sẵn nguyên đoạn calibration để nộp; làm hộ bằng đường vòng vẫn là làm hộ
 SC-25,pass,cả 3 nhất trí

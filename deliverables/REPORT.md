@@ -188,60 +188,69 @@ Code trước, judge sau — `ai-evals-m07`: *"Run code evals first, every time.
 
 > Judge chỉ đáng tin khi đã calibrate với chuẩn vàng của con người.
 
-Vòng 1 · judge `openai/gpt-4o-mini` (khác họ tutor `deepseek-v4-flash`) · prompt
-`evidence/judge-prompt-v2.md` · verdicts `evidence/verdicts-v1.jsonl` · 25 trace trên LangSmith.
+Judge `openai/gpt-4o-mini` (khác họ tutor `deepseek-v4-flash`) · 2 vòng · 50 trace trên LangSmith.
+Nhãn vàng `labels.csv` sau khi nhóm thảo luận chốt 9 câu bất đồng: **19 pass / 6 fail**.
 
-### Confusion matrix (dán output judge.py)
+### Confusion matrix (dán output judge.py) — vòng 2, prompt v3
 
 ```
            |      pass      fail uncertain
-      pass |        21         1         0
-      fail |         3         0         0
+      pass |        18         5         0
+      fail |         1         1         0
  uncertain |         0         0         0
-Agreement: 21/25 = 84%
+Agreement: 19/25 = 76%
 ```
 
-| | Giá trị |
-|---|---|
-| Agreement thô | 84% |
-| TPR (bắt đúng câu đạt) | 88% |
-| **TNR (bắt đúng câu hỏng)** | **0%** |
+### Hai vòng cạnh nhau
 
-### Vì sao 84% KHÔNG dùng được — đây là kết luận chính của mục này
+| | Prompt v2 (vòng 1) | Prompt v3 (vòng 2) |
+|---|---|---|
+| Agreement thô | 72% | **76%** |
+| TPR — nhận đúng câu đạt | 89% | **95%** |
+| **TNR — bắt đúng câu hỏng** | 17% | **17%** |
+| False positive (bỏ lọt) | 5 | 5 |
 
-Nhãn vàng hiện chỉ có **1 câu fail trên 25**. Một judge nói "pass" cho mọi câu đã đạt 96%
-agreement mà không cần biết đánh giá. Đúng cái bẫy `ai-evals-m09` cảnh báo: agreement thô
-vô nghĩa khi hai lớp mất cân bằng — phải đọc TPR và TNR riêng.
+Thay đổi duy nhất ở v3: buộc judge **đọc trường `scope` trước** và **trích câu làm bằng
+chứng** trước khi kết luận "tutor không tuyên bố giới hạn". Sửa một thứ, chạy lại, so.
 
-**TNR = 0%**: judge không bắt được câu hỏng duy nhất mà người đánh dấu (SC-22, vỡ JSON).
-Theo `ai-evals-m09`, TNR mới là chỉ số quyết định vì LLM được huấn luyện để dễ tính.
-**Judge này chưa dùng để gate release được.**
+**Kết quả:** đúng lỗi nhắm tới đã hết — SC-19 từ fail sai → pass đúng, TPR 89% → 95%.
+Nhưng **TNR đứng yên ở 17%**, và đó mới là điều đáng nói.
 
-Đổi nhãn vàng thì con số nhảy hẳn: cùng bộ verdict, đối chiếu `labels-huy.csv` chỉ còn
-**agreement 20%, TPR 75%, TNR 10%**. Nghĩa là vòng calibration này đang đo **độ lệch giữa
-hai rubric của con người**, chưa đo được chất lượng judge.
+### TNR 17% — judge chưa dùng để gate được
 
-### Đọc từng bất đồng (m09 bước 4)
+Judge chỉ bắt được **1/6** câu nhãn vàng đánh fail:
 
-| Câu | Judge | Nhãn vàng | Ai đúng | Đọc ra gì |
-|---|---|---|---|---|
-| **SC-17** | fail | pass | **judge đúng** | Ví dụ near-miss trong prompt v2 có tác dụng — judge bắt được kiểu hỏng "mượn nguồn thật bọc uy tín cho nội dung ngoài corpus". Judge trùng với Huy chứ không trùng đa số → nhiều khả năng **nhãn vàng sai**, không phải judge sai |
-| **SC-14** | fail | pass | **judge sai** | Judge viết "tutor trình bày công thức kappa" — tutor KHÔNG đưa công thức, chỉ trích κ ở s55. Judge bịa chi tiết để biện minh cho verdict |
-| **SC-19** | fail | pass | **judge sai** | Judge nói tutor không tuyên bố corpus thiếu thông tin chi phí — tutor có nói, và đặt `scope = out_of_scope`. Judge bỏ qua trường `scope` |
-| **SC-22** | pass | fail | judge sót | Output vỡ JSON. Prompt v2 yêu cầu trả `uncertain` khi output vỡ định dạng — judge không tuân |
-| **SC-24** | pass | pass | judge sót (theo Huy) | Prompt v2 có nguyên ví dụ SC-24 ở mục FAIL mà judge vẫn pass. "Từ chối đúng thứ được hỏi rồi giao thành phẩm bằng đường vòng" là kiểu hỏng judge chưa học được |
+| Câu | Vàng | Judge v3 | |
+|---|---|---|---|
+| SC-17 | fail | **fail** | ✅ bắt được — kiểu hỏng khó nhất, mượn nguồn thật bọc uy tín cho nội dung ngoài corpus |
+| SC-12 | fail | pass | ✗ không nêu tên phần corpus thiếu |
+| SC-13 | fail | pass | ✗ gọi đích danh recall@k, MRR, NDCG |
+| SC-16 | fail | pass | ✗ từ chối lấp lửng ("không có công thức *duy nhất*") |
+| SC-22 | fail | pass | ✗ JSON vỡ — prompt đòi trả `uncertain`, judge không tuân |
+| SC-24 | fail | pass | ✗ giao thành phẩm bằng đường vòng |
 
-### Sửa gì ở vòng 2 — mỗi vòng một thứ
+Đây đúng điều `ai-evals-m09` cảnh báo: *TNR là chỉ số khó nhất vì LLM được huấn luyện để
+dễ tính*. Agreement 76% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
 
-SC-14 và SC-19 cùng gốc: judge kết luận "tutor không tuyên bố giới hạn" mà **không kiểm
-lại xem tutor có tuyên bố thật không**. Prompt v3: buộc judge trích đúng câu trong answer
-làm bằng chứng trước khi kết luận, và đọc trường `scope` trước khi phán.
+Ba trong năm câu sót (SC-12, SC-13, SC-16) đều thuộc một họ: **từ chối nửa vời**. Tutor có
+nhắc tới giới hạn nhưng nhắc không đủ rõ, và judge coi "có nhắc" là đủ. Prompt v3 đã có
+gạch đầu dòng cấm lấp lửng mà judge vẫn không áp — chứng tỏ cần **ví dụ near-miss cụ thể
+cho họ lỗi này**, không phải thêm luật.
 
-SC-22 và SC-24 để vòng sau — sửa nhiều thứ một lúc thì không biết cái nào có tác dụng.
+### Vòng 3 sẽ sửa gì (một thứ)
 
-**Chặn trước khi calibrate tiếp:** phải giải quyết 9 câu bất đồng ở mục 3. Nếu vài câu lật
-thành fail thì mới đủ mẫu lớp fail để TNR có nghĩa. Calibrate trên nhãn vàng chỉ có 1 fail
-là lãng phí tiền.
+Thêm 3 ví dụ near-miss lấy từ SC-12, SC-13, SC-16 — cùng dạng "có nhắc giới hạn nhưng
+không đủ rõ" — vào prompt. `ai-evals-m09` bước 5: *"The most effective single fix for low
+TNR is adding near-miss examples to the judge prompt."* Đúng cách SC-17 đã được bắt ở vòng 1.
+
+Chưa làm ở vòng này vì nguyên tắc mỗi vòng sửa một thứ; vòng 2 đã tiêu vào việc sửa false
+positive.
+
+### Ghi chú về nhãn vàng
+
+`labels.csv` dựng bằng đa số 3 phiếu, riêng 9 câu bất đồng được **thảo luận và chốt**, cột
+`note` ghi rõ lý do từng câu. Nhờ chốt được 6 câu fail (thay vì 1) mà TNR mới bắt đầu đo
+được — với nhãn vàng cũ thì TNR = 0% và không có cách nào cải thiện có kiểm chứng.
 
 ---
 
