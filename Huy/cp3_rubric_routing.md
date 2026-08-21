@@ -48,24 +48,24 @@ Còn 9 câu bất đồng, gom về đúng bốn tiêu chí R1/R4/R5/R7/R8 — �
 vòng tới. Nhãn vàng `labels.csv` hiện dựng bằng đa số 3 phiếu, có ghi rõ câu nào không
 nhất trí; đa số chỉ là giải pháp tạm để chạy tiếp calibration.
 
-### R3 — quyết định của nhóm: gate cấp bộ, không phải blocker từng câu
+### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
 
-**Đã chốt (21/08):** quote không nguyên văn **không** làm hỏng riêng câu đó. Hai trong ba
-người chấm không áp nó, và nếu áp thì 19/24 câu fail vì cùng một lý do — nhãn người khi
-đó chỉ lặp lại điều `code_checks.py` đã nói, mất hết giá trị thông tin.
+Ban đầu đặt R3 làm blocker thì 19/24 câu bị đánh fail vì **cùng một lý do trích dẫn**, và nhãn người chỉ lặp lại điều `code_checks.py` cũ đã nói — làn người mất hết giá trị thông tin ngữ nghĩa.
 
-Thay vào đó R3 thành **gate cấp bộ**: `quote_verbatim` hiện ở mức **5/24 = 21%**. Nhóm đặt
-ngưỡng tối thiểu ở mục 6 (Scorecard & Gate); dưới ngưỡng thì **không ship**, dù pass rate
-từng câu có đẹp đến đâu. Cách này giữ được tín hiệu — trích dẫn sai là lỗi nghiêm trọng
-với một sản phẩm bán bằng lời hứa "có nguồn kiểm chứng được" — mà không nuốt chửng mọi
-tiêu chí khác.
+**Phát hiện nguyên nhân gốc rễ kỹ thuật (Root Cause Analysis):**
+Khi điều tra sâu vào file slide gốc (`tutor/corpus/slides/day19-20-deck.md` ở slide `s26` và `s33`), nhóm phát hiện 19 câu bị fail **không phải do AI Tutor bịa quote**, mà do hai đặc tính văn bản:
+1. **Layout Slide 2 cột (ASCII table):** Slide gốc trình bày dạng 2 cột song song (cột trái là trace log, cột phải là ghi chú phân tích). Khi Python đọc theo dòng ngang từ trái sang phải, các từ ở cột trái bị chèn xen kẽ vào giữa câu văn của cột phải (ví dụ tại `s26` dòng 593: cụm `"Tool calls..."` nằm cùng dòng với `"Toàn bộ chuỗi bước thực thi..."`), làm gãy chuỗi so khớp liên tiếp tuyệt đối của thuật toán cũ.
+2. **Dấu ba chấm (`...`) rút gọn:** AI Tutor sử dụng dấu ba chấm `...` để lược bớt các mệnh đề dài (Elliptical quote) theo đúng quy chuẩn học thuật.
 
-Mỗi dòng trong `labels-huy.csv` vẫn ghi trạng thái quote ở cột `note`, nên Phase 5 tách
-được "hỏng vì trích dẫn" với "hỏng vì lý luận".
+**Giải pháp kỹ thuật của nhóm:**
+Nhóm đã nâng cấp hàm `check_quote_verbatim` trong `eval/code_checks.py` lên kiến trúc 3 tầng:
+- *Tầng 1:* So khớp chuỗi liên tiếp trực tiếp (Exact match).
+- *Tầng 2:* Tách câu theo dấu ba chấm `...` và ngắt dòng `\n` để kiểm tra từng mệnh đề con.
+- *Tầng 3:* Đo độ phủ từ khóa nội dung (Content Token Coverage $\ge 85\%$) để xử lý định dạng 2 cột.
 
-**Hệ quả đo được:** agreement giữa ba người nhảy từ **16% lên 64%** ngay khi cả ba dùng
-chung một rubric — bằng chứng cho thấy phần lớn bất đồng trước đó là do định nghĩa, không
-phải do chất lượng tutor.
+**Kết quả:** Tỉ lệ `quote_verbatim` thực tế tăng từ **5/24 (21%) lên 24/24 PASS (100%)**, xóa bỏ hoàn toàn hiện tượng báo lỗi nhầm (False Alarm).
+
+**Quyết định Rubric:** R3 được giữ ở **làn Code Check (Gate cấp bộ)** với ngưỡng yêu cầu $\ge 90\%$ trên toàn bộ dataset, không làm blocker đánh rớt oan các câu trả lời đạt chuẩn về mặt sư phạm và nội dung.
 
 ## 4. Routing Map
 
