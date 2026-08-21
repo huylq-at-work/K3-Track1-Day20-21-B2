@@ -198,31 +198,26 @@ trong bài.
 
 ### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
 
-<<<<<<< HEAD
+### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
+
 Ban đầu đặt R3 làm blocker thì 19/24 câu bị đánh fail vì **cùng một lý do trích dẫn**, và nhãn người chỉ lặp lại điều `code_checks.py` cũ đã nói — làn người mất hết giá trị thông tin ngữ nghĩa.
 
 **Phát hiện nguyên nhân gốc rễ kỹ thuật (Root Cause Analysis):**
 Khi điều tra sâu vào file slide gốc (`tutor/corpus/slides/day19-20-deck.md` ở slide `s26` và `s33`), nhóm phát hiện 19 câu bị fail **không phải do AI Tutor bịa quote**, mà do hai đặc tính văn bản:
-1. **Layout Slide 2 cột (ASCII table):** Slide gốc trình bày dạng 2 cột song song (cột trái là trace log, cột phải là ghi chú phân tích). Khi Python đọc theo dòng ngang từ trái sang phải, các từ ở cột trái bị chèn xen kẽ vào giữa câu văn của cột phải (ví dụ tại `s26` dòng 593: cụm `"Tool calls..."` nằm cùng dòng với `"Toàn bộ chuỗi bước thực thi..."`), làm gãy chuỗi so khớp liên tiếp tuyệt đối của thuật toán cũ.
+1. **Layout Slide 2 cột (ASCII table):** Slide gốc trình bày dạng 2 cột song song (cột trái là trace log, cột phải là ghi chú phân tích). Khi Python đọc theo dòng ngang từ trái qua phải, các từ ở cột trái bị chèn xen kẽ vào giữa câu văn của cột phải (ví dụ tại `s26` dòng 593: cụm `"Tool calls..."` nằm cùng dòng với `"Toàn bộ chuỗi bước thực thi..."`), làm gãy chuỗi so khớp liên tiếp tuyệt đối của thuật toán cũ.
 2. **Dấu ba chấm (`...`) rút gọn:** AI Tutor sử dụng dấu ba chấm `...` để lược bớt các mệnh đề dài (Elliptical quote) theo đúng quy chuẩn học thuật.
 
 **Giải pháp kỹ thuật của nhóm:**
 Nhóm đã nâng cấp hàm `check_quote_verbatim` trong `eval/code_checks.py` lên kiến trúc 3 tầng:
 - *Tầng 1:* So khớp chuỗi liên tiếp trực tiếp (Exact match).
-- *Tầng 2:* Tách câu theo dấu ba chấm `...` và ngắt dòng `\n` để kiểm tra từng mệnh đề con.
-- *Tầng 3:* Đo độ phủ từ khóa nội dung (Content Token Coverage $\ge 85\%$) để xử lý định dạng 2 cột.
+- *Tầng 2:* Tách câu theo dấu ba chấm `...` và ngắt dòng `
+` để kiểm tra từng mệnh đề con.
+- *Tầng 3:* Đo độ phủ từ khóa nội dung (Content Token Coverage >= 85%) để xử lý định dạng 2 cột.
 
 **Kết quả:** Tỉ lệ `quote_verbatim` thực tế tăng từ **5/24 (21%) lên 24/24 PASS (100%)**, xóa bỏ hoàn toàn hiện tượng báo lỗi nhầm (False Alarm).
 
-**Quyết định Rubric:** R3 được giữ ở **làn Code Check (Gate cấp bộ)** với ngưỡng yêu cầu $\ge 90\%$ trên toàn bộ dataset, không làm blocker đánh rớt oan các câu trả lời đạt chuẩn về mặt sư phạm và nội dung.
-=======
-Ban đầu đặt R3 làm blocker thì 19/24 câu fail (theo bản check cũ) vì **cùng một lý do**, và nhãn người chỉ lặp
-lại điều `code_checks.py` đã nói — làn người mất hết giá trị thông tin. Nhóm chuyển R3
-thành **gate cấp bộ**: `quote_verbatim` hiện **5/24 = 21%**, đặt ngưỡng tối thiểu ở mục 6,
-dưới ngưỡng thì không ship dù pass rate từng câu đẹp đến đâu. Trạng thái quote của từng
-dòng vẫn ghi ở cột `note` trong `labels-*.csv` để mục 5 tách được "hỏng vì trích dẫn" với
-"hỏng vì lý luận".
->>>>>>> 7dd2978fd580cff8bc37207f387351e6f5e3df4e
+**Quyết định Rubric:** R3 được giữ ở **làn Code Check (Gate cấp bộ)** với ngưỡng yêu cầu >= 90% trên toàn bộ dataset, không làm blocker đánh rớt oan các câu trả lời đạt chuẩn về mặt sư phạm và nội dung.
+
 
 ### Chấm chéo: đã làm, và nó đổi rubric
 
