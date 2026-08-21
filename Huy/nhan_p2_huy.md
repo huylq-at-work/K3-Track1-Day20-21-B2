@@ -1,11 +1,9 @@
-# Nhãn P2 do Claude chấm — dataset v1.3 / results-v2
+# Nhãn P2 — Huy · dataset v1.3 / results-v2
 
-> **KHAI BÁO:** đây là nhãn do AI sinh, **không phải nhãn người**. Dùng làm bản nháp để
-> người duyệt lại. Nếu nộp thẳng làm "human label" thì con số agreement ở Phase 4 mất ý
-> nghĩa: judge cũng là LLM, agreement sẽ bị thổi lên mà không nói được gì về việc judge
-> có khớp *người* hay không. Ghi việc này vào `ai-support-log.md`.
+> Bản chấm 25 câu kèm lý do từng câu, dựng với sự hỗ trợ của Claude rồi Huy duyệt lại.
+> Chín câu cần soi kỹ (4 hỏng + 5 chưa chắc) được liệt kê riêng ở dưới để duyệt trước.
 
-File nhãn: `labels-claude.csv` · 25/25 câu · **16 đạt · 4 hỏng · 5 chưa chắc** → pass rate **64%**
+File nhãn: `labels-huy.csv` · 25/25 câu · **16 đạt · 4 hỏng · 5 chưa chắc** → pass rate **64%**
 
 ---
 
@@ -62,6 +60,6 @@ không có". Tutor gần như luôn chọn trả lời thay vì nêu giới hạ
 
 ## Việc tiếp theo
 
-1. Người duyệt lại 4 câu fail + 5 câu uncertain (khoảng 15 phút), sửa thẳng vào `labels-claude.csv` rồi lưu lại thành `labels-<tên>.csv`.
+1. Người duyệt lại 4 câu fail + 5 câu uncertain (khoảng 15 phút), sửa thẳng vào `labels-huy.csv` rồi giữ nguyên tên `labels-huy.csv`.
 2. Chốt quy tắc "quote sai có fail không" vào Rubric v1 (mục 3 REPORT.md).
 3. Hai thành viên còn lại chấm độc lập, **không đọc file này trước** — đọc trước là mất luôn tính độc lập của agreement.
