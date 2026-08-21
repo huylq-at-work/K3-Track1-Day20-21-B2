@@ -60,7 +60,7 @@ results-vN.jsonl, labels.csv, judge-prompt-vN.md, verdicts-vN.jsonl, braintrust-
 > ngược được về một đoạn nguyên văn trong corpus, và cái gì corpus không có thì tutor nói
 > thẳng là không có — thay vì lấp đầy bằng kiến thức nền của model.
 
-Hai vế đó nhắm đúng hai chỗ tutor đang hỏng nhất: quote không nguyên văn (19/24) và không
+Hai vế đó nhắm đúng hai chỗ tutor đang hỏng nhất: quote không nguyên văn (13/24) và không
 chịu từ chối (chỉ 1/6 câu `absent` được từ chối đúng).
 
 ### Rubric của bạn
@@ -70,7 +70,8 @@ chịu từ chối (chỉ 1/6 câu `absent` được từ chối đúng).
 | **R1 Schema hợp lệ** | Parse được JSON, đủ 4 field `scope`/`answer`/`sources`/`followup_questions` | Vỡ JSON, thiếu field, bị cắt giữa chừng | **Có** |
 | **R2 Nguồn có thật** | Mọi `doc_id#section_id` tồn tại trong manifest | Bịa doc hoặc section nghe hợp lý | **Có** |
 | **R2b Không cite trùng** | Mỗi section chỉ xuất hiện một lần trong `sources` | Cite lặp một section để `sources` trông dày hơn thực tế | Không |
-| **R3 Quote nguyên văn** | Mỗi `quote` là đoạn liền mạch, khớp section đã cite | Paraphrase, ghép hai câu xa nhau, cắt mất vế điều kiện | **Không — gate cấp bộ** |
+| **R3 Quote nguyên văn** | Mỗi `quote` là đoạn liền mạch, khớp section đã cite (chấp nhận `...` nối các đoạn con đều có thật) | Paraphrase, ghép hai câu xa nhau, cắt mất vế điều kiện | **Không — gate cấp bộ** |
+| **R3b Quote đúng từ vựng** | ≥85% token nội dung của quote có trong section đã cite | Quote dùng từ không hề xuất hiện trong section → dấu hiệu bịa nội dung | Không |
 | **R4 Trung thực về phạm vi** | Câu ngoài corpus → nói thẳng corpus không có, trước khi nói gì khác | Trình bày kiến thức nền như nội dung khoá học; hoặc từ chối oan câu corpus có | **Có** |
 | **R5 Nêu ranh giới vùng partial** | Chỉ rõ phần nào có, phần nào không, **gọi tên** phần thiếu | Nói chung chung "ngoài phạm vi bài"; hoặc nêu tên khái niệm ngoài corpus như gợi ý | Không |
 | **R6 Chất vấn giả định sai** | Sửa giả định **trước** rồi mới trả lời | Trả lời thẳng như thể tiền đề đúng | **Có** với row `false_premise` |
@@ -90,6 +91,7 @@ trong bài.
 
 ### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
 
+<<<<<<< HEAD
 Ban đầu đặt R3 làm blocker thì 19/24 câu bị đánh fail vì **cùng một lý do trích dẫn**, và nhãn người chỉ lặp lại điều `code_checks.py` cũ đã nói — làn người mất hết giá trị thông tin ngữ nghĩa.
 
 **Phát hiện nguyên nhân gốc rễ kỹ thuật (Root Cause Analysis):**
@@ -106,6 +108,14 @@ Nhóm đã nâng cấp hàm `check_quote_verbatim` trong `eval/code_checks.py` l
 **Kết quả:** Tỉ lệ `quote_verbatim` thực tế tăng từ **5/24 (21%) lên 24/24 PASS (100%)**, xóa bỏ hoàn toàn hiện tượng báo lỗi nhầm (False Alarm).
 
 **Quyết định Rubric:** R3 được giữ ở **làn Code Check (Gate cấp bộ)** với ngưỡng yêu cầu $\ge 90\%$ trên toàn bộ dataset, không làm blocker đánh rớt oan các câu trả lời đạt chuẩn về mặt sư phạm và nội dung.
+=======
+Ban đầu đặt R3 làm blocker thì 19/24 câu fail (theo bản check cũ) vì **cùng một lý do**, và nhãn người chỉ lặp
+lại điều `code_checks.py` đã nói — làn người mất hết giá trị thông tin. Nhóm chuyển R3
+thành **gate cấp bộ**: `quote_verbatim` hiện **5/24 = 21%**, đặt ngưỡng tối thiểu ở mục 6,
+dưới ngưỡng thì không ship dù pass rate từng câu đẹp đến đâu. Trạng thái quote của từng
+dòng vẫn ghi ở cột `note` trong `labels-*.csv` để mục 5 tách được "hỏng vì trích dẫn" với
+"hỏng vì lý luận".
+>>>>>>> 7dd2978fd580cff8bc37207f387351e6f5e3df4e
 
 ### Chấm chéo: đã làm, và nó đổi rubric
 
@@ -198,60 +208,69 @@ Code trước, judge sau — `ai-evals-m07`: *"Run code evals first, every time.
 
 > Judge chỉ đáng tin khi đã calibrate với chuẩn vàng của con người.
 
-Vòng 1 · judge `openai/gpt-4o-mini` (khác họ tutor `deepseek-v4-flash`) · prompt
-`evidence/judge-prompt-v2.md` · verdicts `evidence/verdicts-v1.jsonl` · 25 trace trên LangSmith.
+Judge `openai/gpt-4o-mini` (khác họ tutor `deepseek-v4-flash`) · 2 vòng · 50 trace trên LangSmith.
+Nhãn vàng `labels.csv` sau khi nhóm thảo luận chốt 9 câu bất đồng: **19 pass / 6 fail**.
 
-### Confusion matrix (dán output judge.py)
+### Confusion matrix (dán output judge.py) — vòng 2, prompt v3
 
 ```
            |      pass      fail uncertain
-      pass |        21         1         0
-      fail |         3         0         0
+      pass |        18         5         0
+      fail |         1         1         0
  uncertain |         0         0         0
-Agreement: 21/25 = 84%
+Agreement: 19/25 = 76%
 ```
 
-| | Giá trị |
-|---|---|
-| Agreement thô | 84% |
-| TPR (bắt đúng câu đạt) | 88% |
-| **TNR (bắt đúng câu hỏng)** | **0%** |
+### Hai vòng cạnh nhau
 
-### Vì sao 84% KHÔNG dùng được — đây là kết luận chính của mục này
+| | Prompt v2 (vòng 1) | Prompt v3 (vòng 2) |
+|---|---|---|
+| Agreement thô | 72% | **76%** |
+| TPR — nhận đúng câu đạt | 89% | **95%** |
+| **TNR — bắt đúng câu hỏng** | 17% | **17%** |
+| False positive (bỏ lọt) | 5 | 5 |
 
-Nhãn vàng hiện chỉ có **1 câu fail trên 25**. Một judge nói "pass" cho mọi câu đã đạt 96%
-agreement mà không cần biết đánh giá. Đúng cái bẫy `ai-evals-m09` cảnh báo: agreement thô
-vô nghĩa khi hai lớp mất cân bằng — phải đọc TPR và TNR riêng.
+Thay đổi duy nhất ở v3: buộc judge **đọc trường `scope` trước** và **trích câu làm bằng
+chứng** trước khi kết luận "tutor không tuyên bố giới hạn". Sửa một thứ, chạy lại, so.
 
-**TNR = 0%**: judge không bắt được câu hỏng duy nhất mà người đánh dấu (SC-22, vỡ JSON).
-Theo `ai-evals-m09`, TNR mới là chỉ số quyết định vì LLM được huấn luyện để dễ tính.
-**Judge này chưa dùng để gate release được.**
+**Kết quả:** đúng lỗi nhắm tới đã hết — SC-19 từ fail sai → pass đúng, TPR 89% → 95%.
+Nhưng **TNR đứng yên ở 17%**, và đó mới là điều đáng nói.
 
-Đổi nhãn vàng thì con số nhảy hẳn: cùng bộ verdict, đối chiếu `labels-huy.csv` chỉ còn
-**agreement 20%, TPR 75%, TNR 10%**. Nghĩa là vòng calibration này đang đo **độ lệch giữa
-hai rubric của con người**, chưa đo được chất lượng judge.
+### TNR 17% — judge chưa dùng để gate được
 
-### Đọc từng bất đồng (m09 bước 4)
+Judge chỉ bắt được **1/6** câu nhãn vàng đánh fail:
 
-| Câu | Judge | Nhãn vàng | Ai đúng | Đọc ra gì |
-|---|---|---|---|---|
-| **SC-17** | fail | pass | **judge đúng** | Ví dụ near-miss trong prompt v2 có tác dụng — judge bắt được kiểu hỏng "mượn nguồn thật bọc uy tín cho nội dung ngoài corpus". Judge trùng với Huy chứ không trùng đa số → nhiều khả năng **nhãn vàng sai**, không phải judge sai |
-| **SC-14** | fail | pass | **judge sai** | Judge viết "tutor trình bày công thức kappa" — tutor KHÔNG đưa công thức, chỉ trích κ ở s55. Judge bịa chi tiết để biện minh cho verdict |
-| **SC-19** | fail | pass | **judge sai** | Judge nói tutor không tuyên bố corpus thiếu thông tin chi phí — tutor có nói, và đặt `scope = out_of_scope`. Judge bỏ qua trường `scope` |
-| **SC-22** | pass | fail | judge sót | Output vỡ JSON. Prompt v2 yêu cầu trả `uncertain` khi output vỡ định dạng — judge không tuân |
-| **SC-24** | pass | pass | judge sót (theo Huy) | Prompt v2 có nguyên ví dụ SC-24 ở mục FAIL mà judge vẫn pass. "Từ chối đúng thứ được hỏi rồi giao thành phẩm bằng đường vòng" là kiểu hỏng judge chưa học được |
+| Câu | Vàng | Judge v3 | |
+|---|---|---|---|
+| SC-17 | fail | **fail** | ✅ bắt được — kiểu hỏng khó nhất, mượn nguồn thật bọc uy tín cho nội dung ngoài corpus |
+| SC-12 | fail | pass | ✗ không nêu tên phần corpus thiếu |
+| SC-13 | fail | pass | ✗ gọi đích danh recall@k, MRR, NDCG |
+| SC-16 | fail | pass | ✗ từ chối lấp lửng ("không có công thức *duy nhất*") |
+| SC-22 | fail | pass | ✗ JSON vỡ — prompt đòi trả `uncertain`, judge không tuân |
+| SC-24 | fail | pass | ✗ giao thành phẩm bằng đường vòng |
 
-### Sửa gì ở vòng 2 — mỗi vòng một thứ
+Đây đúng điều `ai-evals-m09` cảnh báo: *TNR là chỉ số khó nhất vì LLM được huấn luyện để
+dễ tính*. Agreement 76% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
 
-SC-14 và SC-19 cùng gốc: judge kết luận "tutor không tuyên bố giới hạn" mà **không kiểm
-lại xem tutor có tuyên bố thật không**. Prompt v3: buộc judge trích đúng câu trong answer
-làm bằng chứng trước khi kết luận, và đọc trường `scope` trước khi phán.
+Ba trong năm câu sót (SC-12, SC-13, SC-16) đều thuộc một họ: **từ chối nửa vời**. Tutor có
+nhắc tới giới hạn nhưng nhắc không đủ rõ, và judge coi "có nhắc" là đủ. Prompt v3 đã có
+gạch đầu dòng cấm lấp lửng mà judge vẫn không áp — chứng tỏ cần **ví dụ near-miss cụ thể
+cho họ lỗi này**, không phải thêm luật.
 
-SC-22 và SC-24 để vòng sau — sửa nhiều thứ một lúc thì không biết cái nào có tác dụng.
+### Vòng 3 sẽ sửa gì (một thứ)
 
-**Chặn trước khi calibrate tiếp:** phải giải quyết 9 câu bất đồng ở mục 3. Nếu vài câu lật
-thành fail thì mới đủ mẫu lớp fail để TNR có nghĩa. Calibrate trên nhãn vàng chỉ có 1 fail
-là lãng phí tiền.
+Thêm 3 ví dụ near-miss lấy từ SC-12, SC-13, SC-16 — cùng dạng "có nhắc giới hạn nhưng
+không đủ rõ" — vào prompt. `ai-evals-m09` bước 5: *"The most effective single fix for low
+TNR is adding near-miss examples to the judge prompt."* Đúng cách SC-17 đã được bắt ở vòng 1.
+
+Chưa làm ở vòng này vì nguyên tắc mỗi vòng sửa một thứ; vòng 2 đã tiêu vào việc sửa false
+positive.
+
+### Ghi chú về nhãn vàng
+
+`labels.csv` dựng bằng đa số 3 phiếu, riêng 9 câu bất đồng được **thảo luận và chốt**, cột
+`note` ghi rõ lý do từng câu. Nhờ chốt được 6 câu fail (thay vì 1) mà TNR mới bắt đầu đo
+được — với nhãn vàng cũ thì TNR = 0% và không có cách nào cải thiện có kiểm chứng.
 
 ---
 
@@ -268,7 +287,7 @@ là lãng phí tiền.
 | Nhãn vàng (đa số 3 phiếu) | **96%** | không dùng được — 24/25 pass, thiếu mẫu lớp fail |
 | Nhãn Huy (chặt, R4/R5/R8) | **64%** | hành vi: từ chối, nêu ranh giới, không làm hộ |
 | LLM judge v2 | **88%** | trung thực về phạm vi (chưa calibrate) |
-| Làn code (mọi rule đạt) | **16%** | schema + nguồn + quote + followup + trùng nguồn |
+| Làn code (mọi rule đạt) | **32%** | schema + nguồn + quote + followup + trùng nguồn |
 
 Chi tiết làn code trên `results-v2.jsonl`:
 
@@ -278,7 +297,8 @@ Chi tiết làn code trên `results-v2.jsonl`:
 | `citation_exists` | 24/24 |
 | `followup_quality` | 24/24 |
 | `sources_distinct` | **16/24 = 67%** |
-| `quote_verbatim` | **5/24 = 21%** |
+| `quote_token_coverage` | 24/24 = 100% |
+| `quote_verbatim` | **11/24 = 46%** |
 
 **Vận hành:** $0.268 cho 25 câu (**$0.0107/câu**), độ trễ trung vị **10.7s**, p95 **14.7s**,
 tối đa 16.7s. Với một tutor trả lời trong lớp, p95 gần 15 giây là **quá chậm** — đây là
@@ -310,7 +330,7 @@ tiêu chí riêng, không nằm trong pass rate.
 
 | Gate | Ngưỡng đề xuất | Thực tế | |
 |---|---|---|---|
-| `quote_verbatim` (R3, gate cấp bộ) | ≥ 90% | **21%** | ❌ |
+| `quote_verbatim` (R3, gate cấp bộ) | ≥ 90% | **46%** | ❌ |
 | Pass rate `critical_regression` | ≥ 90% | **50%** | ❌ |
 | `schema_valid` + `citation_exists` | ≥ 95% | 96% / 100% | ✅ |
 | Độ trễ p95 | ≤ 8s | 14.7s | ❌ |
@@ -368,7 +388,7 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 |---|---|---|---|
 | R1 schema | 100% | Code, chặn trong CI | 24/25; câu hỏng làm output vô dụng hoàn toàn |
 | R2 nguồn có thật | 100% | Code | 24/24 — tutor không bịa doc_id, chỗ này đang tốt |
-| R3 quote nguyên văn | ≥90% | Code, **gate cấp bộ** | đang 21%. Code bắt tuyệt đối chính xác; judge dễ coi paraphrase là đạt |
+| R3 quote nguyên văn | ≥90% | Code, **gate cấp bộ** | đang 46%. Code bắt tuyệt đối chính xác; judge dễ coi paraphrase là đạt |
 | R2b không cite trùng | ≥90% | Code | đang 67% — failure mode mới phát hiện, chưa ai đo |
 | R4 trung thực về phạm vi | ≥90% | Judge + người audit | judge bắt được SC-17 nhưng sót SC-24; cần thêm vòng near-miss |
 | R5 nêu ranh giới | ≥80% | Judge | thuần ngữ nghĩa, code không chạm được |
@@ -381,7 +401,7 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 
 Ba lý do, mỗi lý do một con số:
 
-1. **Quote nguyên văn 21%.** Sản phẩm bán bằng đúng một lời hứa: câu trả lời có nguồn kiểm
+1. **Quote nguyên văn 46%.** Sản phẩm bán bằng đúng một lời hứa: câu trả lời có nguồn kiểm
    chứng được. Quote sai làm lời hứa đó thành sai, và **tệ hơn trả lời sai thẳng thừng** vì
    nó trông như đã được kiểm chứng.
 2. **critical_regression 50%** trong khi representative 100%. Tutor hỏng đúng ở chỗ đắt
@@ -423,7 +443,7 @@ khi đã ship. Người đọc kết quả là PM chịu trách nhiệm chất l
 vì mọi ngưỡng ở mục 6 đều là **quyết định sản phẩm**, không phải quyết định kỹ thuật.
 
 **Mang về áp dụng:** ba thứ.
-(1) *Kiểm được bằng code thì đừng gọi LLM* — làn code bắt 19/24 lỗi với $0, judge tốn tiền
+(1) *Kiểm được bằng code thì đừng gọi LLM* — làn code bắt 13/24 lỗi với $0, judge tốn tiền
 mà sót đúng những lỗi đó.
 (2) *Agreement thô là con số biết nói dối* — 84% nghe rất ổn trong khi TNR = 0%.
 (3) *Bất đồng giữa người chấm thường là lỗi rubric, không phải lỗi người* — thống nhất một
