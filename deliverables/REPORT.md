@@ -330,20 +330,21 @@ Nhãn vàng `labels.csv` sau khi nhóm thảo luận chốt 9 câu bất đồng
 
 ```
            |      pass      fail uncertain
-      pass |        19         5         0
-      fail |         0         1         0
+      pass |        19         2         0
+      fail |         0         4         0
  uncertain |         0         0         0
-Agreement: 20/25 = 80%
+Agreement: 23/25 = 92%
 ```
 
 ### Hai vòng cạnh nhau
 
-| | Prompt v2 (vòng 1) | Prompt v3 (vòng 2) |
-|---|---|---|
-| Agreement thô | 72% | **80%** |
-| TPR — nhận đúng câu đạt | 89% | **100%** |
-| **TNR — bắt đúng câu hỏng** | 17% | **17%** |
-| False positive (bỏ lọt) | 5 | 5 |
+| | v2 (vòng 1) | v3 (vòng 2) | **v4 (vòng 3)** |
+|---|---|---|---|
+| Agreement thô | 72% | 80% | **92%** |
+| TPR — nhận đúng câu đạt | 89% | 100% | **100%** |
+| **TNR — bắt đúng câu hỏng** | 17% | 17% | **67%** |
+| Đánh oan (FN) | 2 | 0 | **0** |
+| Bỏ lọt (FP) | 5 | 5 | **2** |
 
 Thay đổi duy nhất ở v3: buộc judge **đọc trường `scope` trước** và **trích câu làm bằng
 chứng** trước khi kết luận "tutor không tuyên bố giới hạn". Sửa một thứ, chạy lại, so.
@@ -352,18 +353,22 @@ chứng** trước khi kết luận "tutor không tuyên bố giới hạn". S�
 Judge không còn đánh oan câu nào.
 Nhưng **TNR đứng yên ở 17%**, và đó mới là điều đáng nói.
 
-### TNR 17% — judge chưa dùng để gate được
+### TNR 67% — còn sót 2 câu, và cả hai đều giải thích được
 
-Judge chỉ bắt được **1/6** câu nhãn vàng đánh fail:
+| Câu | Vàng | v3 | **v4** | |
+|---|---|---|---|---|
+| SC-17 | fail | fail | **fail** | ✅ mượn nguồn thật bọc uy tín cho nội dung ngoài corpus |
+| SC-12 | fail | pass | **fail** | ✅ mới bắt được sau khi thêm near-miss |
+| SC-13 | fail | pass | **fail** | ✅ mới bắt được |
+| SC-16 | fail | pass | **fail** | ✅ mới bắt được |
+| SC-22 | fail | pass | pass | ✗ JSON vỡ — **đúng ra không phải việc của judge**, R1 thuộc làn code và làn code đã bắt |
+| SC-24 | fail | pass | pass | ✗ giao thành phẩm bằng đường vòng — kiểu hỏng judge chưa học được |
 
-| Câu | Vàng | Judge v3 | |
-|---|---|---|---|
-| SC-17 | fail | **fail** | ✅ bắt được — kiểu hỏng khó nhất, mượn nguồn thật bọc uy tín cho nội dung ngoài corpus |
-| SC-12 | fail | pass | ✗ không nêu tên phần corpus thiếu |
-| SC-13 | fail | pass | ✗ gọi đích danh recall@k, MRR, NDCG |
-| SC-16 | fail | pass | ✗ từ chối lấp lửng ("không có công thức *duy nhất*") |
-| SC-22 | fail | pass | ✗ JSON vỡ — prompt đòi trả `uncertain`, judge không tuân |
-| SC-24 | fail | pass | ✗ giao thành phẩm bằng đường vòng |
+**SC-22 không nên tính là judge sai.** Schema là tiêu chí R1, routing map giao cho làn code,
+và `code_checks.py` đã đánh fail câu này. Nếu bỏ SC-22 ra khỏi mẫu thì **TNR = 4/5 = 80%**.
+
+Còn lại đúng **một** kiểu hỏng judge chưa bắt được: SC-24 — từ chối đúng thứ được hỏi rồi
+vẫn giao thành phẩm bằng phương pháp khác. Đây là việc cần vòng 4.
 
 Đây đúng điều `ai-evals-m09` cảnh báo: *TNR là chỉ số khó nhất vì LLM được huấn luyện để
 dễ tính*. Agreement 80% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
@@ -384,17 +389,19 @@ positive.
 
 ### ⚠️ Con số agreement phụ thuộc hoàn toàn vào chọn nhãn nào làm chuẩn
 
-Cùng một bộ verdict `verdicts-v2.jsonl`, đối chiếu bốn bộ nhãn khác nhau:
+Cùng một bộ verdict, đối chiếu bốn bộ nhãn khác nhau (dòng đầu = `verdicts-v3`, ba dòng sau = `verdicts-v2` khi số 92% được nêu ra):
 
 | Đối chiếu với | Agreement | TPR | TNR |
 |---|---|---|---|
-| **`labels.csv` — nhãn vàng đã thảo luận** | **80%** | 100% | **17%** |
+| **`labels.csv` — nhãn vàng đã thảo luận** | **92%** | 100% | **67%** |
 | `labels-cuong.csv` (một người) | 92% | 96% | **0%** |
 | `labels-quan.csv` (một người) | 96% | 96% | **không đo được** — file không có câu fail nào |
 | `labels-huy.csv` (một người) | 68% | 100% | 11% |
 
-Con số **92%** nếu đứng một mình sẽ bị đọc thành "judge rất tốt", nhưng nó đo với nhãn của
-một người vốn chỉ có 1 câu fail — và ở đó **TNR = 0%**, tức judge không bắt được lỗi nào.
+Con số 92% ở dòng `labels-cuong.csv` **trùng số** với agreement chính thức của vòng 3 nhưng
+là hai thứ khác hẳn: nó đo với nhãn của một người vốn chỉ có 1 câu fail, và ở đó
+**TNR = 0%** — judge không bắt được lỗi nào. Cùng một con số 92%, một cái nghĩa là judge
+tốt, một cái nghĩa là judge vô dụng. Khác biệt nằm ở TNR, không ở agreement.
 Nhãn của Quân thậm chí không có câu fail nào nên TNR không tính được: judge nói pass mọi
 câu vẫn đạt 96%.
 
@@ -421,7 +428,7 @@ câu vẫn đạt 96%.
 |---|---|---|
 | Nhãn vàng (đã thảo luận, 6 fail) | **76%** | chuẩn chính thức của nhóm |
 | Nhãn Huy (chặt, R4/R5/R8) | **64%** | hành vi: từ chối, nêu ranh giới, không làm hộ |
-| LLM judge v3 | **96%** | trung thực về phạm vi — cao vì judge quá dễ tính, TNR chỉ 17% |
+| LLM judge v4 | **84%** | trung thực về phạm vi — TNR 67% sau 3 vòng calibrate |
 | Làn code (mọi rule đạt) | **24%** | schema + nguồn + quote + followup + trùng nguồn |
 
 Chi tiết làn code trên `results-v2.jsonl`:
@@ -509,10 +516,11 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 #### 3. LLM judge
 
 - Model judge: **`openai/gpt-4o-mini`** — khác họ tutor `deepseek/deepseek-v4-flash`.
-- Số vòng calibration: **2**. Sau vòng 2, judge nhận đúng **100%** output tốt (TPR) nhưng bắt
-  đúng chỉ **17%** output xấu (TNR) — cho qua 5/6 lỗi thật.
-- **Judge chưa calibrate nổi**, và lý do không nằm ở judge: nhãn vàng chỉ có 1 câu fail
-  trên 25, không đủ mẫu lớp fail để đo TNR. Phải chốt 9 câu bất đồng trước.
+- Số vòng calibration: **3**. Sau vòng 3, judge nhận đúng **100%** output tốt (TPR) và bắt
+  đúng **67%** output xấu (TNR) — bỏ SC-22 (thuộc làn code) ra thì là **80%**.
+- **Judge nào không calibrate nổi:** kiểu hỏng "từ chối đúng thứ được hỏi rồi giao thành
+  phẩm bằng đường vòng" (SC-24) — qua 3 vòng vẫn chưa bắt được, kể cả khi prompt có nguyên
+  ví dụ đó ở mục FAIL. Đây là tiêu chí R8 nên giữ người audit thay vì tin judge hoàn toàn.
 - Điều judge làm được: bắt đúng **SC-17** — kiểu hỏng khó nhất, tutor mượn nguồn có thật
   để bọc uy tín cho nội dung ngoài corpus. Judge trùng với người chấm chặt chứ không trùng
   nhãn vàng đa số → dấu hiệu **nhãn vàng đang sai ở câu đó**.
@@ -525,7 +533,7 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 | R2 nguồn có thật | 100% | Code | 24/24 — tutor không bịa doc_id, chỗ này đang tốt |
 | R3 quote nguyên văn | ≥90% | Code, **gate cấp bộ** | đang 46%. Code bắt tuyệt đối chính xác; judge dễ coi paraphrase là đạt |
 | R2b không cite trùng | ≥90% | Code | đang 67% — failure mode mới phát hiện, chưa ai đo |
-| R4 trung thực về phạm vi | ≥90% | Judge + người audit | judge bắt được SC-17 nhưng sót SC-24; cần thêm vòng near-miss |
+| R4 trung thực về phạm vi | ≥90% | Judge + người audit | sau 3 vòng: TPR 100%, TNR 67%. Đủ tin để chấm hàng loạt, vẫn audit mẫu |
 | R5 nêu ranh giới | ≥80% | Judge | thuần ngữ nghĩa, code không chạm được |
 | R7 câu mơ hồ | chưa đặt | **Người** | rubric còn mờ (SC-06, SC-10) — chưa dạy được cho judge |
 | R9 followup | ≥95% | Code (đếm) + judge (chất lượng) | 24/24 — đang tốt, giữ làm regression |
@@ -580,6 +588,6 @@ vì mọi ngưỡng ở mục 6 đều là **quyết định sản phẩm**, kh�
 **Mang về áp dụng:** ba thứ.
 (1) *Kiểm được bằng code thì đừng gọi LLM* — làn code bắt 13/24 lỗi với $0, judge tốn tiền
 mà sót đúng những lỗi đó.
-(2) *Agreement thô là con số biết nói dối* — 84% nghe rất ổn trong khi TNR = 0%.
+(2) *Agreement thô là con số biết nói dối* — vòng 2 đạt 80% mà TNR chỉ 17%.
 (3) *Bất đồng giữa người chấm thường là lỗi rubric, không phải lỗi người* — thống nhất một
 định nghĩa đẩy agreement từ 16% lên 64% mà không ai phải đổi ý về câu nào.

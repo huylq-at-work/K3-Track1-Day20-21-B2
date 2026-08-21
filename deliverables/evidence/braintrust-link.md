@@ -12,8 +12,9 @@
 
 | judge vòng 1 | prompt v2 | **25** | `judge-run`, verdicts-v1.jsonl |
 | judge vòng 2 | prompt v3 | **25** | `judge-run`, verdicts-v2.jsonl |
+| judge vòng 3 | prompt v4 | **25** | `judge-run`, verdicts-v3.jsonl |
 
-Tổng: **75 trace** trong project `ai-evaluation` (25 tutor + 50 judge).
+Tổng: **100 trace** trong project `ai-evaluation` (25 tutor + 75 judge).
 
 > Lưu ý khi điền `.env`: đặt key **một mình trên một dòng**. Nếu viết
 > `LANGSMITH_API_KEY=lsv2_... # ghi chú` thì phần ghi chú bị tính là một phần của key
