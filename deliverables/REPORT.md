@@ -198,26 +198,39 @@ trong bài.
 
 ### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
 
-### R3 vì sao không phải blocker từng câu & Bài học cải tiến Code Check
+Ban đầu đặt R3 làm blocker thì **19/24 câu fail vì cùng một lý do trích dẫn**, và nhãn
+người chỉ lặp lại điều `code_checks.py` đã nói — làn người mất hết giá trị thông tin.
 
-Ban đầu đặt R3 làm blocker thì 19/24 câu bị đánh fail vì **cùng một lý do trích dẫn**, và nhãn người chỉ lặp lại điều `code_checks.py` cũ đã nói — làn người mất hết giá trị thông tin ngữ nghĩa.
+**Điều tra nguyên nhân gốc:** mở thẳng `tutor/corpus/slides/day19-20-deck.md` thì thấy một
+phần lớn câu fail **không phải do tutor bịa quote**, mà do hai đặc tính văn bản:
 
-**Phát hiện nguyên nhân gốc rễ kỹ thuật (Root Cause Analysis):**
-Khi điều tra sâu vào file slide gốc (`tutor/corpus/slides/day19-20-deck.md` ở slide `s26` và `s33`), nhóm phát hiện 19 câu bị fail **không phải do AI Tutor bịa quote**, mà do hai đặc tính văn bản:
-1. **Layout Slide 2 cột (ASCII table):** Slide gốc trình bày dạng 2 cột song song (cột trái là trace log, cột phải là ghi chú phân tích). Khi Python đọc theo dòng ngang từ trái qua phải, các từ ở cột trái bị chèn xen kẽ vào giữa câu văn của cột phải (ví dụ tại `s26` dòng 593: cụm `"Tool calls..."` nằm cùng dòng với `"Toàn bộ chuỗi bước thực thi..."`), làm gãy chuỗi so khớp liên tiếp tuyệt đối của thuật toán cũ.
-2. **Dấu ba chấm (`...`) rút gọn:** AI Tutor sử dụng dấu ba chấm `...` để lược bớt các mệnh đề dài (Elliptical quote) theo đúng quy chuẩn học thuật.
+1. **Slide layout 2 cột.** Slide gốc trình bày song song (trái: trace log, phải: ghi chú
+   phân tích). Python đọc theo dòng ngang nên từ cột trái bị chèn xen kẽ vào giữa câu của
+   cột phải — ví dụ `s26` dòng 593, cụm *"Tool calls…"* nằm cùng dòng với *"Toàn bộ chuỗi
+   bước thực thi…"*. Chuỗi so khớp liên tiếp bị gãy dù quote đúng.
+2. **Dấu ba chấm rút gọn.** Tutor dùng `...` để lược mệnh đề dài — đúng quy chuẩn học thuật,
+   nhưng thuật toán cũ coi là lệch.
 
-**Giải pháp kỹ thuật của nhóm:**
-Nhóm đã nâng cấp hàm `check_quote_verbatim` trong `eval/code_checks.py` lên kiến trúc 3 tầng:
-- *Tầng 1:* So khớp chuỗi liên tiếp trực tiếp (Exact match).
-- *Tầng 2:* Tách câu theo dấu ba chấm `...` và ngắt dòng `
-` để kiểm tra từng mệnh đề con.
-- *Tầng 3:* Đo độ phủ từ khóa nội dung (Content Token Coverage >= 85%) để xử lý định dạng 2 cột.
+**Nâng cấp `check_quote_verbatim` lên 3 tầng:** (1) so khớp chuỗi liên tiếp; (2) tách theo
+`...` và `\n` rồi kiểm từng mệnh đề con; (3) đo độ phủ token nội dung ≥85% cho layout 2 cột.
 
-**Kết quả:** Tỉ lệ `quote_verbatim` thực tế tăng từ **5/24 (21%) lên 24/24 PASS (100%)**, xóa bỏ hoàn toàn hiện tượng báo lỗi nhầm (False Alarm).
+**Nhưng tầng 3 tách thành check riêng.** Độ phủ token **không xét thứ tự** — một paraphrase
+dùng lại từ vựng của section cũng đạt. Gộp vào `quote_verbatim` thì con số nhảy lên 24/24
+và tiêu chí mất hết ý nghĩa "nguyên văn". Nhóm tách làm hai chỉ số:
 
-**Quyết định Rubric:** R3 được giữ ở **làn Code Check (Gate cấp bộ)** với ngưỡng yêu cầu >= 90% trên toàn bộ dataset, không làm blocker đánh rớt oan các câu trả lời đạt chuẩn về mặt sư phạm và nội dung.
+| Check | Kết quả | Trả lời câu hỏi gì |
+|---|---|---|
+| `quote_verbatim` (tầng 1+2) | **11/24 = 46%** | có đúng là trích nguyên văn không — **đây là gate** |
+| `quote_token_coverage` (tầng 3) | 24/24 = 100% | có bịa nội dung ra ngoài section không |
 
+Hai con số cạnh nhau nói được điều mà một con số không nói được: **không câu nào bịa nội
+dung, nhưng hơn một nửa không trích nguyên văn** — tutor đọc đúng nguồn rồi viết lại bằng
+lời mình. Nếu chỉ nhìn 24/24 thì kết luận sai là "trích dẫn không có vấn đề".
+
+**Quyết định Rubric:** R3 giữ ở **làn code, gate cấp bộ**, ngưỡng ≥90% trên toàn dataset —
+không làm blocker đánh rớt oan từng câu vốn đạt về nội dung và sư phạm. Trạng thái quote
+của từng dòng vẫn ghi ở cột `note` trong `labels-*.csv` để mục 5 tách được "hỏng vì trích
+dẫn" với "hỏng vì lý luận".
 
 ### Chấm chéo: đã làm, và nó đổi rubric
 
@@ -515,7 +528,7 @@ Ba lý do, mỗi lý do một con số:
 
 | # | Việc | Vì sao trước | Đo bằng gì |
 |---|---|---|---|
-| 1 | **Sửa system prompt phần quote** — bắt copy nguyên văn từ kết quả `kb_search`, cấm ghép câu bằng `...` | Rẻ nhất, nhắm đúng lỗi lớn nhất | `quote_verbatim` 21% → mục tiêu ≥90% |
+| 1 | **Sửa system prompt phần quote** — bắt copy nguyên văn từ kết quả `kb_search`, cấm ghép câu bằng `...` | Rẻ nhất, nhắm đúng lỗi lớn nhất | `quote_verbatim` 46% → mục tiêu ≥90% |
 | 2 | **Sửa prompt phần từ chối** — nêu rõ: nội dung ngoài corpus phải từ chối trước khi nói bất cứ điều gì, kể cả khi model biết câu trả lời | Nhắm SC-17/SC-24 | pass rate `absent` 50% → ≥90% |
 | 3 | Ép dedupe `sources` | Rule code đã có | `sources_distinct` 67% → 100% |
 | 4 | Chỉ khi 1–3 không đủ mới đụng model/architecture | Đắt hơn nhiều bậc | chạy lại cả bộ |
