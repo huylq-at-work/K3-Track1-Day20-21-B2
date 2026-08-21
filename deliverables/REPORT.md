@@ -368,7 +368,17 @@ Nhưng **TNR đứng yên ở 17%**, và đó mới là điều đáng nói.
 và `code_checks.py` đã đánh fail câu này. Nếu bỏ SC-22 ra khỏi mẫu thì **TNR = 4/5 = 80%**.
 
 Còn lại đúng **một** kiểu hỏng judge chưa bắt được: SC-24 — từ chối đúng thứ được hỏi rồi
-vẫn giao thành phẩm bằng phương pháp khác. Đây là việc cần vòng 4.
+vẫn giao thành phẩm bằng phương pháp khác. Đáng nói là prompt v4 **có nguyên ví dụ SC-24
+ở mục FAIL** mà judge vẫn cho qua: nhóm đã thử dạy và judge không học được. Theo
+`ai-evals-m09` §Lesson 2 thì đây là judge chạm trần ở tiêu chí R8 — cách xử lý đúng là
+**giữ người audit cho R8**, không phải cố ép thêm vòng nữa.
+
+### Cảnh báo về cỡ mẫu
+
+Nhãn vàng chỉ có **6 câu fail**, nên TNR = 4/6. **Một câu lật là TNR đổi ~17 điểm phần
+trăm.** Con số 67% chỉ đủ để nói "judge đã tốt lên rõ rệt sau 3 vòng", **chưa đủ** để nói
+"judge đạt chuẩn 67%". Muốn có con số tin được thì cần thêm rows ở vùng `absent` và
+`partial` — đúng vùng tutor hay hỏng. Đây là việc đầu tiên nếu dataset được mở rộng.
 
 Đây đúng điều `ai-evals-m09` cảnh báo: *TNR là chỉ số khó nhất vì LLM được huấn luyện để
 dễ tính*. Agreement 80% nghe ổn, nhưng judge cho qua 5/6 lỗi thật.
