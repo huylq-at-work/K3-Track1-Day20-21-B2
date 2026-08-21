@@ -1,0 +1,37 @@
+Case chung: 25
+Đồng thuận hoàn toàn: 6/25 = 24%
+  huy vs quân: 6/25 = 24%
+
+19 case bất đồng — đem vào thảo luận:
+  SC-01 -> huy: fail · quân: pass
+  SC-02 -> huy: fail · quân: pass
+  SC-05 -> huy: fail · quân: pass
+  SC-06 -> huy: fail · quân: pass
+  SC-07 -> huy: fail · quân: pass
+  SC-08 -> huy: fail · quân: pass
+  SC-09 -> huy: fail · quân: pass
+  SC-10 -> huy: fail · quân: pass
+  SC-11 -> huy: fail · quân: pass
+  SC-12 -> huy: fail · quân: pass
+  SC-13 -> huy: fail · quân: pass
+  SC-14 -> huy: fail · quân: pass
+  SC-16 -> huy: fail · quân: pass
+  SC-17 -> huy: fail · quân: pass
+  SC-18 -> huy: fail · quân: pass
+  SC-21 -> huy: fail · quân: pass
+  SC-22 -> huy: fail · quân: pass
+  SC-24 -> huy: fail · quân: pass
+  SC-25 -> huy: fail · quân: pass
+
+Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
+
+--- Bối cảnh (đọc trước khi dùng con số này) ---
+Vòng chấm này diễn ra khi hai người đang dùng HAI rubric khác nhau:
+  · huy  — áp quy tắc "quote không nguyên văn = fail" (blocker R3)
+  · quân — chấm trước khi nhóm chốt quy tắc đó
+Nên 19/25 bất đồng đều cùng chiều (huy fail / quân pass). Đây là bất đồng về
+ĐỊNH NGHĨA "đủ tốt", không phải về chất lượng tutor.
+
+Xử lý: chốt Rubric v1 (xem Huy/cp3_rubric_routing.md) -> cả nhóm chấm LẠI trên
+cùng một chuẩn -> đo agreement vòng 2. Không sửa nhãn cho khớp nhau.
+Con số 24% ở đây giữ lại làm mốc "trước khi có rubric chung".
