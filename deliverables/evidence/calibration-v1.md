@@ -3,7 +3,7 @@
 Judge: `openai/gpt-4o-mini` · Tutor: `deepseek/deepseek-v4-flash` — khác họ model (slide s55).
 Verdicts: `verdicts-v1.jsonl` · Prompt: `judge-prompt-v2.md` · 25 trace đã log lên LangSmith.
 
-## Confusion matrix — đối chiếu `labels.csv` (nhãn vàng hiện tại)
+## Confusion matrix — đối chiếu `labels.csv` (nhãn vàng = đa số 3 phiếu)
 
 |              | người: pass | người: fail |
 |---|---|---|
@@ -26,7 +26,7 @@ Theo `ai-evals-m09`, TNR mới là chỉ số khó và là chỉ số quyết đ
 
 | | TPR | TNR | Agreement |
 |---|---|---|---|
-| vs `labels.csv` | 88% | **0%** | 84% |
+| vs `labels.csv` (đa số 3 phiếu) | 88% | **0%** | 84% |
 | vs `labels-huy.csv` | 75% | 10% | **20%** |
 
 Cùng một bộ verdict, đổi nhãn vàng thì agreement nhảy từ 84% xuống 20%. Con số calibration

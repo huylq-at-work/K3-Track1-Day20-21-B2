@@ -23,7 +23,7 @@ không chịu từ chối (3/6 câu `absent`).
 |---|---|---|---|---|
 | **R1** | **Schema hợp lệ** | Parse được JSON, đủ 4 field `scope` / `answer` / `sources` / `followup_questions` | Vỡ JSON, thiếu field, bị cắt giữa chừng | **Có** |
 | **R2** | **Nguồn có thật** | Mọi `doc_id#section_id` tồn tại trong manifest | Bịa doc hoặc section nghe hợp lý | **Có** |
-| **R3** | **Quote nguyên văn** | Mỗi `quote` là một đoạn liền mạch, khớp đúng section đã cite | Paraphrase, ghép hai câu xa nhau bằng `...`, cắt mất vế điều kiện | **Có** ← *nhóm vừa chốt* |
+| **R3** | **Quote nguyên văn** | Mỗi `quote` là một đoạn liền mạch, khớp đúng section đã cite | Paraphrase, ghép hai câu xa nhau bằng `...`, cắt mất vế điều kiện | **Không — gate cấp bộ** (xem dưới) |
 | **R4** | **Đúng phạm vi** | Câu `absent` → `out_of_scope` và nói rõ corpus không có; câu in-scope → trả lời | Trả lời câu ngoài corpus như thể đã dạy; **hoặc** từ chối câu corpus thật sự có | **Có** |
 | **R5** | **Nêu ranh giới ở vùng partial** | Nói rõ phần nào corpus có, phần nào không, **gọi tên** phần thiếu | Nói chung chung "ngoài phạm vi bài" mà không chỉ ra thiếu gì; hoặc nêu tên khái niệm ngoài corpus như gợi ý | Không — điểm trừ |
 | **R6** | **Chất vấn giả định sai** | Sửa giả định **trước** rồi mới trả lời | Trả lời thẳng như thể tiền đề đúng | **Có** với row `false_premise` |
@@ -43,29 +43,29 @@ s48 và m11 để tăng uy tín cho quy trình ROC-AUC vốn không có trong b�
 
 ### Đã chấm chéo chưa
 
-Chưa. Đây là bản của một người. Hai thành viên còn lại chấm độc lập rồi chạy
-`eval/agreement.py`; chỗ nào lệch thì sửa rubric, **không** sửa nhãn.
+Rồi — ba người, kết quả ở `deliverables/evidence/agreement-v3.txt`: đồng thuận 64%.
+Còn 9 câu bất đồng, gom về đúng bốn tiêu chí R1/R4/R5/R7/R8 — đó là danh sách thảo luận
+vòng tới. Nhãn vàng `labels.csv` hiện dựng bằng đa số 3 phiếu, có ghi rõ câu nào không
+nhất trí; đa số chỉ là giải pháp tạm để chạy tiếp calibration.
 
-### ⚠️ Hệ quả của việc đặt R3 làm blocker — phải đọc trước khi chốt
+### R3 — quyết định của nhóm: gate cấp bộ, không phải blocker từng câu
 
-Pass rate rơi từ **64% → 16%** (4/25). Trong 21 câu hỏng, **12 câu hành vi hoàn toàn đạt**
-và chỉ trượt vì quote — SC-01, SC-02, SC-05, SC-07, SC-08, SC-09, SC-11, SC-14, SC-15,
-SC-20, SC-21, SC-25.
+**Đã chốt (21/08):** quote không nguyên văn **không** làm hỏng riêng câu đó. Hai trong ba
+người chấm không áp nó, và nếu áp thì 19/24 câu fail vì cùng một lý do — nhãn người khi
+đó chỉ lặp lại điều `code_checks.py` đã nói, mất hết giá trị thông tin.
 
-Hai hệ quả kéo sang phase sau:
+Thay vào đó R3 thành **gate cấp bộ**: `quote_verbatim` hiện ở mức **5/24 = 21%**. Nhóm đặt
+ngưỡng tối thiểu ở mục 6 (Scorecard & Gate); dưới ngưỡng thì **không ship**, dù pass rate
+từng câu có đẹp đến đâu. Cách này giữ được tín hiệu — trích dẫn sai là lỗi nghiêm trọng
+với một sản phẩm bán bằng lời hứa "có nguồn kiểm chứng được" — mà không nuốt chửng mọi
+tiêu chí khác.
 
-1. **Nhãn người gần như trùng làn code.** 19/21 câu fail là do một rule mà
-   `code_checks.py` đã tự bắt được. Judge calibrate theo bộ nhãn này sẽ chủ yếu học
-   cách... phát hiện quote lệch — việc code làm rẻ hơn và chính xác hơn.
-2. **Cột `note` phải giữ verdict hành vi** (đã làm trong `labels-huy.csv`: mỗi câu fail
-   vì quote đều ghi kèm *"hành vi thì đạt: …"*). Không có nó thì Phase 5 không tách được
-   "hỏng vì trích dẫn" với "hỏng vì lý luận" — hai thứ này sửa bằng hai cách khác nhau.
+Mỗi dòng trong `labels-huy.csv` vẫn ghi trạng thái quote ở cột `note`, nên Phase 5 tách
+được "hỏng vì trích dẫn" với "hỏng vì lý luận".
 
-**Đề xuất để cân bằng:** giữ R3 là blocker, nhưng Phase 5 báo cáo **hai con số**:
-*pass rate toàn phần* (16%) và *pass rate hành vi* (64%, bỏ R3 ra). Con số đầu quyết
-định ship hay không; con số sau chỉ ra sửa cái gì trước.
-
----
+**Hệ quả đo được:** agreement giữa ba người nhảy từ **16% lên 64%** ngay khi cả ba dùng
+chung một rubric — bằng chứng cho thấy phần lớn bất đồng trước đó là do định nghĩa, không
+phải do chất lượng tutor.
 
 ## 4. Routing Map
 
