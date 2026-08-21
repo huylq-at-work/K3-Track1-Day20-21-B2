@@ -3,7 +3,7 @@
 > Bản chấm 25 câu kèm lý do từng câu, dựng với sự hỗ trợ của Claude rồi Huy duyệt lại.
 > Chín câu cần soi kỹ (4 hỏng + 5 chưa chắc) được liệt kê riêng ở dưới để duyệt trước.
 
-File nhãn: `labels-huy.csv` · 25/25 câu · **16 đạt · 4 hỏng · 5 chưa chắc** → pass rate **64%**
+File nhãn: `labels-huy.csv` · 25/25 câu · **4 dat · 21 hong** -> pass rate **16%** (quy tac: quote sai = fail)
 
 ---
 
