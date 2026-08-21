@@ -100,3 +100,26 @@ Chạy test/eval phải set encoding, nếu không Python 3.14 trên Windows s�
 ```bash
 PYTHONIOENCODING=utf-8 py tests/test_eval_kit.py
 ```
+
+---
+
+## 7. Cập nhật v1.3 — đã sửa xong gold label (21/08/2026)
+
+6 rows ở mục 3 đã được viết lại theo corpus thật. File: `Huy/dataset_v1.3.jsonl` = `dataset.jsonl`.
+Bản gốc giữ nguyên trong `metadata.expected_behavior_v11` của từng row để truy vết.
+
+| Row | Sửa gì |
+|---|---|
+| **SC-04** | Giả định sai giờ có **3 lớp**: sai nguồn (không phải Chip Huyen) · sai chủ thể (>90% là agreement **người-người** khi label trace, `ai-evals-m04`) · sai loại (điều kiện dừng, không phải ngưỡng ship). Bắt ≥2/3 mới PASS. Cái corpus thật có cho judge-vs-người: TPR/TNR ở `ai-evals-m09` |
+| **SC-05** | Theo SC-04; vẫn cấm dựng lý lẽ cho "90 là ngưỡng của judge" |
+| **SC-14** | Đảo chiều: corpus **CÓ** κ (`slide-day19-20#s55`, cách đọc 0→1), **KHÔNG có** công thức Cohen's kappa (grep "Cohen" = 0 hit). FAIL cả hai chiều — đưa công thức = bịa, nói "corpus không nhắc kappa" = over-refusal. Thay thế: công thức TPR/TNR có thật ở `ai-evals-m09` |
+| **SC-15** | Từ `partial` → `available`. Corpus có ngưỡng rất cụ thể (`ai-evals-m11`): pass rate <85% · judge tụt >10 điểm · P95 latency >2s · complaint 3x · refusal >30% hoặc <5%, cộng sampling ~5% và 3 nguyên tắc alert hygiene. Gold cũ bắt tutor tuyên bố giới hạn → **chấm sai tutor đúng** |
+| **SC-16** | Tách đôi: vế "bắt drift thế nào" **CÓ** (3 tín hiệu drift, `ai-evals-m11`) · vế "có công thức không" **KHÔNG** (grep KS test / Kolmogorov / PSI / population stability / chi-square = 0 hit). Bỏ sót vế nào cũng FAIL |
+| **SC-19** | Bỏ TTFT/TPOT khỏi gold (grep "TTFT" = 0 hit). Corpus chỉ viết đầy đủ: *"time to first token, time per token, time between tokens, time per query"* (`chip-huyen-ch4`) |
+
+**Phân bố D-A sau sửa:** available 10 · scattered 6 · partial 3 · absent 6. Gate coverage vẫn ĐẠT.
+**Kiểm chứng:** 55/55 anchor tồn tại · `tests/test_eval_kit.py` 44 pass / 0 fail.
+
+### File để chấm tay
+`Huy/trace_tay_v1.3.md` — 25 câu nhóm theo vùng corpus, mỗi câu có câu hỏi, bối cảnh slide,
+gold label, nguồn được phép cite, và một ô trống Pass/Fail/Uncertain để điền.
