@@ -10,40 +10,147 @@ results-vN.jsonl, labels.csv, judge-prompt-vN.md, verdicts-vN.jsonl, braintrust-
 ## 1. Input Grid
 
 > Lưới input = trục "ai hỏi" × "hỏi kiểu gì". LLM giúp sinh input, con người kiểm soát
-> coverage. Trả lời các câu hỏi sau rồi vẽ lưới của bạn.
+> coverage.
 
-- AI Tutor của bạn phục vụ những **nhóm người dùng** nào? (học viên mới, học viên đang
-  làm bài, học viên ôn lại, PM khác team...?)
-- Mỗi nhóm có những **ý định (intent)** hỏi nào? (hỏi khái niệm, xin ví dụ, hỏi ngoài
-  lề, xin đáp án, hỏi mơ hồ...?)
-- Ô nào trong lưới là **rủi ro cao** nhất (trả lời sai thì hại người học)? Ô nào **tần
-  suất cao** nhất?
+### Bốn dimension đã chốt
+
+Chọn từ menu 9 ứng viên, mỗi cái chạy phép thử slide 26 — *đổi giá trị thì hành vi đúng có
+đổi không?* Không đổi thì chỉ là paraphrase, loại.
+
+| Dimension | Values | Đổi value → hành vi đúng đổi thế nào |
+|---|---|---|
+| **D-A · Độ phủ corpus** | `available` · `scattered` · `partial` · `absent` | trả lời trực tiếp 1 nguồn → tổng hợp ≥2 doc → trả lời + tuyên bố giới hạn → từ chối, không bịa quote |
+| **D-B · Chất lượng đề bài** | `clear` · `missing_referent` · `multi_intent` · `false_premise` | trả lời ngay → hỏi lại/nêu giả định → trả lời cả hai ý → sửa giả định TRƯỚC |
+| **D-C · Loại nhiệm vụ** | `explain_concept` · `distinguish_pair` · `apply_to_own_case` · `ask_for_answer` | định nghĩa + quote → nêu cả hai chiều → suy luận có điều kiện → không làm hộ |
+| **D-D · Ngôn ngữ** | `vi_pure` · `vi_en_mix` | `vi_pure` tạo áp lực retrieval (corpus tiếng Anh, câu hỏi không có từ khoá trùng); `vi_en_mix` buộc `quote` giữ nguyên tiếng Anh trong khi answer là tiếng Việt |
+
+**Đã loại khỏi trục — kèm lý do:**
+- *tone (lịch sự/cộc lốc)* và *độ dài câu hỏi*: 3 giá trị vẫn ra 1 hành vi đúng → paraphrase,
+  không phải dimension. Slide 26 dùng đúng ví dụ này.
+- *failure cost / mức rủi ro*: đây là **tiêu chí chọn ô**, thành cột `risk_if_fail` +
+  `set_type`, không phải thuộc tính của input.
+- *"có cần research ngoài không"*: trùng hoàn toàn với value `absent` của D-A.
+- *persona / giai đoạn học*: **hoãn v2** — chỉ lấy nếu cam kết viết được tiêu chí rubric
+  chấm "độ sâu phù hợp người hỏi"; không có tiêu chí thì thành trục không chấm được.
 
 ### Lưới của bạn
 
-| Nhóm user \ Intent | ... | ... | ... |
-|---|---|---|---|
-| ... | | | |
+Nhóm người dùng ở đây **không** phải trục riêng — mọi câu đều là học viên AI20K. Cái thật
+sự đổi hành vi đúng là *hỏi về vùng nào của corpus* × *hỏi kiểu gì*:
+
+| D-A \ D-C | explain_concept | distinguish_pair | apply_to_own_case | ask_for_answer |
+|---|---|---|---|---|
+| **available** | SC-01, SC-04, SC-05, SC-06, SC-07, SC-14 | SC-02, SC-03 | SC-15, SC-16 | SC-22 |
+| **scattered** | SC-08, SC-11, SC-25 | SC-09, SC-10, SC-23 | — *(loại: D-A biến mất)* | — *(loại)* |
+| **partial** | SC-12, SC-13 | — | — | — |
+| **absent** | SC-17, SC-18, SC-19 | — *(loại: không phân biệt được hai thứ corpus không có)* | SC-20, SC-21 | SC-24 |
+
+**Ô rủi ro cao nhất:** `absent` × `ask_for_answer` (SC-24) — tutor vừa bị ép rời corpus vừa
+bị ép làm hộ, và nó thừa kiến thức nền để làm. Một lần gật là học viên có ngay artefact sai
+để nộp. **Đây đúng là ô tutor hỏng thật.**
+
+**Ô tần suất cao nhất:** `available` × `explain_concept` — câu hỏi thường ngày, 6 rows.
+
+### Phễu tổ hợp
+
+```
+4 × 4 × 4 × 2                              = 128 ô
+− scattered|partial × ask_for_answer       = −16   (trùng hành vi: D-A biến mất)
+− absent × missing_referent                = −8    (hoãn: chưa chốt clarify hay refuse)
+− distinguish_pair × multi_intent          = −8    (đã được CB-14 phủ)
+                                  còn lại  = 96 ô hợp lệ
+chọn có chủ đích theo 5 tiêu chí slide 27  = 18 combination
+78 ô còn lại: HOÃN vì ngân sách chấm tay, không phải bị loại vì vô giá trị
+```
 
 ---
 
 ## 2. Dataset v1
 
-> Dataset là "bộ đề thi" của tutor. Nêu rõ nó phủ những ô nào trong input-grid.
+> Dataset là "bộ đề thi" của tutor.
 
-- `dataset.jsonl` của bạn có **bao nhiêu câu**? Mỗi câu thuộc ô nào trong lưới input?
-- Tỉ lệ in-scope / out-of-scope / mơ hồ / adversarial (xin đáp án, prompt injection)
-  là bao nhiêu? Vì sao chọn tỉ lệ đó?
-- Câu nào bạn **lấy từ trace thật** (người dùng thật hỏi), câu nào do bạn/LLM sinh ra?
-- Ai đã **review** dataset? Phát hiện gì khi review (câu trùng ý, câu quá dễ, thiếu ô
-  rủi ro cao)?
-- Nếu chỉ được giữ 10 câu, bạn giữ 10 câu nào? Vì sao?
+**25 câu · 18 combination · 4 dimension.** File: `evidence/dataset-v1.jsonl`.
+
+### Tỉ lệ và lý do chọn
+
+| Loại | Số câu | Vì sao |
+|---|---|---|
+| in-scope | 19 | `available` 10 + `scattered` 6 + `partial` 3 |
+| out-of-scope (`absent`) | 6 | gấp 3 mức tối thiểu — vì đây là vùng dự đoán tutor yếu nhất, và **dự đoán đúng**: chỉ 1/6 được từ chối đúng |
+| mơ hồ | 6 | `missing_referent` 3 + `multi_intent` 3 |
+| adversarial (xin đáp án) | 2 | SC-22, SC-24 |
+| `representative` | 5 | giống production |
+| `challenge` | 8 | cố ý over-sample |
+| `critical_regression` | 12 | sai là hỏng nặng |
+
+**Cố ý lệch về challenge/critical_regression (80%).** Hệ quả phải nhớ ở mục 6: pass rate
+tổng của bộ này **không phải** production success rate (slide 30).
+
+### Nguồn câu hỏi
+
+**Không câu nào lấy từ trace người dùng thật** — sản phẩm chưa chạy, không có trace
+production. Đây là blind spot lớn nhất của dataset.
+
+Quy trình: người chốt combination → AI paraphrase thành 2 câu tự nhiên → người quyết
+Keep/Rewrite/Reject từng câu. Cột `nguon_cau` trong dataset ghi vết từng row (`P-01a`,
+`P-05b`…), kèm ghi chú câu nào được sửa ở version nào.
+
+### Review đã phát hiện gì
+
+Ba đợt review, mỗi đợt tìm ra lỗi khác loại:
+
+1. **v1.0 → v1.1:** phát hiện gold label của SC-04/SC-05 bảo tutor **phủ nhận** con số
+   ">90% agreement" trong khi con số đó có thật trong corpus → tutor càng chính xác càng
+   bị chấm fail. Lỗi BLOCKING.
+2. **v1.1 → v1.2 (P0):** phát hiện toàn bộ dataset neo vào **corpus giả định sai** — D2
+   (Hamel llm-judge) và Ch.3 không có trong repo; corpus thật là 18 doc khác. 11/25 rows
+   sẽ fail `citation_exists` ngay ở làn code. Đã remap 55 anchor, verify 55/55 tồn tại.
+3. **v1.2 → v1.3:** grep lại toàn bộ 18 doc, phát hiện **6 gold label sai chiều** — nặng
+   nhất là SC-15/SC-16 (corpus dạy hẳn 3 tín hiệu drift + ngưỡng cảnh báo cụ thể, gold cũ
+   lại bắt tutor tuyên bố "corpus không có") và SC-14 (corpus **có** giải thích κ ở s55,
+   chỉ thiếu công thức Cohen).
+
+**Bài học chốt thành luật:** mọi khẳng định *"corpus không có X"* phải kèm từ khoá đã
+search và số hit, không được suy đoán từ trí nhớ.
+
+### Nếu chỉ giữ 10 câu
+
+SC-17, SC-24, SC-22, SC-13, SC-16 (5 câu tutor hỏng thật — giữ làm regression) ·
+SC-19, SC-20, SC-21 (từ chối đúng — giữ để phát hiện over-refusal khi siết prompt) ·
+SC-01, SC-08 (happy path — nếu hai câu này hỏng thì bản build đó có vấn đề nghiêm trọng).
+
+Bỏ trước tiên: các cặp row cùng ô chỉ khác differentiator (SC-02/SC-03, SC-12/SC-13,
+SC-20/SC-21) — giữ một câu mỗi cặp.
 
 ### Danh sách scenario (bảng tóm tắt)
 
 | scenario_id | ô trong lưới | expected | nguồn câu hỏi |
 |---|---|---|---|
-| | | | |
+| SC-01 | CB-01 · available × clear × explain_concept × vi_en_mix | in_scope · representative | P-01a (v1.1: bỏ vế 'khác transcript') |
+| SC-02 | CB-02 · available × clear × distinguish_pair × vi_pure | in_scope · representative | P-02a |
+| SC-03 | CB-02 · available × clear × distinguish_pair × vi_pure | in_scope · representative | P-02b |
+| SC-04 | CB-03 · available × false_premise × explain_concept × vi_en_mix | in_scope · critical_regression | P-03a (gold label sửa ở v1.1) |
+| SC-05 | CB-03 · available × false_premise × explain_concept × vi_en_mix | in_scope · critical_regression | P-03b |
+| SC-06 | CB-04 · available × missing_referent × explain_concept × vi_pure | in_scope · challenge | P-04a |
+| SC-07 | CB-04 · available × missing_referent × explain_concept × vi_pure | in_scope · challenge | P-04b (Keep có bảo lưu) |
+| SC-08 | CB-05 · scattered × clear × explain_concept × vi_en_mix | in_scope · representative | P-05a |
+| SC-09 | CB-06 · scattered × clear × distinguish_pair × vi_pure | in_scope · challenge | P-06a |
+| SC-10 | CB-07 · scattered × missing_referent × distinguish_pair × vi_en_mix | in_scope · critical_regression | P-07a |
+| SC-11 | CB-08 · scattered × multi_intent × explain_concept × vi_pure | in_scope · challenge | P-08a (v1.1: đổi 'judge' → 'bộ chấm tự động' cho khớp nhãn vi_pure) |
+| SC-12 | CB-09 · partial × clear × explain_concept × vi_en_mix | in_scope · critical_regression | P-09a |
+| SC-13 | CB-09 · partial × clear × explain_concept × vi_en_mix | in_scope · critical_regression | P-09b (v1.1: thêm 'retrieval' cho khớp nhãn vi_en_mix) |
+| SC-14 | CB-10 · partial × false_premise × explain_concept × vi_en_mix | in_scope · critical_regression | P-10a |
+| SC-15 | CB-11 · available × clear × apply_to_own_case × vi_pure | in_scope · challenge | P-11a |
+| SC-16 | CB-11 · available × clear × apply_to_own_case × vi_pure | in_scope · challenge | P-11b (v1.1: thêm bối cảnh 'tutor bên em' cho khớp nhãn apply_to_own_case) |
+| SC-17 | CB-12 · absent × clear × explain_concept × vi_en_mix | out_of_scope · critical_regression | P-12a |
+| SC-18 | CB-12 · absent × clear × explain_concept × vi_en_mix | out_of_scope · critical_regression | P-12b (lý do chống lưng sửa ở v1.1) |
+| SC-19 | CB-13 · absent × clear × explain_concept × vi_pure | out_of_scope · representative | P-13a |
+| SC-20 | CB-14 · absent × multi_intent × apply_to_own_case × vi_pure | out_of_scope · critical_regression | P-14a |
+| SC-21 | CB-14 · absent × multi_intent × apply_to_own_case × vi_pure | out_of_scope · critical_regression | P-14b (v1.1: thêm bối cảnh 'tutor bên em') |
+| SC-22 | CB-15 · available × clear × ask_for_answer × vi_en_mix | in_scope · challenge | P-15a |
+| SC-23 | CB-16 · scattered × clear × distinguish_pair × vi_en_mix | in_scope · challenge | P-07b (v1.1: tách khỏi CB-07 thành ô riêng) |
+| SC-24 | CB-17 · absent × clear × ask_for_answer × vi_en_mix | out_of_scope · critical_regression | Mới ở v1.1 — mở lại ô bị loại nhầm |
+| SC-25 | CB-18 · scattered × false_premise × explain_concept × vi_en_mix | in_scope · critical_regression | P-05b (v1.1: tách khỏi CB-05, nhãn clear → false_premise) |
 
 ---
 
