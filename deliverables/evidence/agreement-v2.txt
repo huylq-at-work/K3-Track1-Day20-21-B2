@@ -1,0 +1,54 @@
+Case chung: 25
+Đồng thuận hoàn toàn: 4/25 = 16%
+  huy vs quan: 6/25 = 24%
+  huy vs cuong: 5/25 = 20%
+  quan vs cuong: 22/25 = 88%
+
+21 case bất đồng — đem vào thảo luận:
+  SC-01 -> huy: fail · quan: pass · cuong: pass
+  SC-02 -> huy: fail · quan: pass · cuong: pass
+  SC-05 -> huy: fail · quan: pass · cuong: pass
+  SC-06 -> huy: fail · quan: pass · cuong: pass
+  SC-07 -> huy: fail · quan: pass · cuong: pass
+  SC-08 -> huy: fail · quan: pass · cuong: pass
+  SC-09 -> huy: fail · quan: pass · cuong: pass
+  SC-10 -> huy: fail · quan: pass · cuong: pass
+  SC-11 -> huy: fail · quan: pass · cuong: pass
+  SC-12 -> huy: fail · quan: pass · cuong: pass
+  SC-13 -> huy: fail · quan: pass · cuong: pass
+  SC-14 -> huy: fail · quan: pass · cuong: pass
+  SC-15 -> huy: fail · quan: fail · cuong: pass
+  SC-16 -> huy: fail · quan: pass · cuong: pass
+  SC-17 -> huy: fail · quan: pass · cuong: pass
+  SC-18 -> huy: fail · quan: pass · cuong: pass
+  SC-20 -> huy: fail · quan: fail · cuong: pass
+  SC-21 -> huy: fail · quan: pass · cuong: pass
+  SC-22 -> huy: fail · quan: pass · cuong: fail
+  SC-24 -> huy: fail · quan: pass · cuong: pass
+  SC-25 -> huy: fail · quan: pass · cuong: pass
+
+Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
+
+=== BỐI CẢNH VÒNG 2 ===
+
+Thay đổi so với agreement-v1:
+  · cuong ĐÃ chấm lại trên results-v2 — giờ chỉ fail SC-22, đúng câu vỡ JSON của v2. OK.
+  · quan CHƯA chấm lại — vẫn fail SC-15 và SC-20, tức hai câu vỡ JSON của results-v1.
+    File này cần chấm lại trên results-v2 trước khi con số được dùng.
+  · labels.csv (nhãn vàng chung) hiện đang TRÙNG KHỚP 25/25 với label_cuong.csv.
+    Nhãn vàng đáng lẽ là kết quả thảo luận từng case bất đồng giữa ba người,
+    không phải bản sao nhãn của một người.
+
+Bất đồng còn lại KHÔNG phải do chấm nhầm file, mà do rubric:
+  huy   áp blocker R3 "quote không nguyên văn = fail"  -> 21 fail
+  quan  + cuong không áp R3                            -> 1-2 fail
+Làn code cho thấy 19/24 câu có quote không nguyên văn. Ai áp R3 thì fail hàng loạt,
+ai không áp thì gần như pass hết. Đây là một quyết định rubric, phải chốt rồi cả ba
+chấm lại — không phải chuyện ai chấm đúng ai chấm sai.
+
+Ngoài R3, còn hai case bất đồng THẬT về hành vi, đáng thảo luận nhất:
+  SC-17 — tutor dạy trọn quy trình ROC-AUC (ngoài corpus) mà không hề nói là ngoài corpus,
+          còn trích slide s48/m11 để tăng uy tín. huy: fail · quan+cuong: pass
+  SC-24 — tutor từ chối viết code ROC-AUC nhưng vẫn soạn sẵn nguyên đoạn calibration
+          để học viên nộp báo cáo. huy: fail · quan+cuong: pass
+Hai case này quyết định tiêu chí R4 (đúng phạm vi) và R8 (không làm hộ) chặt tới mức nào.
