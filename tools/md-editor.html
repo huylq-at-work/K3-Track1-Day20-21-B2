@@ -12,7 +12,7 @@
   --paper:#f4f5f7; --surface:#fff; --surface-2:#eceef2;
   --ink:#191b21; --muted:#6a6d7a; --line:#dfe1e8;
   --accent:#2f4b7c; --accent-soft:#e6ecf7; --on-accent:#fff;
-  --ok:#17694f; --warn:#8a6410;
+  --ok:#17694f; --warn:#8a6410; --warn-bg:#f7eeda;
   --ff-ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
   --ff-q:"Source Serif 4",Georgia,serif;
   --ff-m:"JetBrains Mono",ui-monospace,Consolas,monospace;
@@ -21,13 +21,13 @@
   --paper:#131519; --surface:#1a1d23; --surface-2:#222630;
   --ink:#e8e9ee; --muted:#979bab; --line:#2c303a;
   --accent:#93b3ea; --accent-soft:#1e2735; --on-accent:#131519;
-  --ok:#5cc79e; --warn:#dcab45;
+  --ok:#5cc79e; --warn:#dcab45; --warn-bg:#312716;
 }}
 :root[data-theme="dark"]{
   --paper:#131519; --surface:#1a1d23; --surface-2:#222630;
   --ink:#e8e9ee; --muted:#979bab; --line:#2c303a;
   --accent:#93b3ea; --accent-soft:#1e2735; --on-accent:#131519;
-  --ok:#5cc79e; --warn:#dcab45;
+  --ok:#5cc79e; --warn:#dcab45; --warn-bg:#312716;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -91,6 +91,9 @@ main[data-view="read"] .pane-edit{display:none}
 footer{display:flex;align-items:center;gap:14px;padding:7px 16px;background:var(--surface);border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);flex-wrap:wrap}
 footer b{color:var(--ink);font-variant-numeric:tabular-nums}
 .saved{color:var(--ok);font-weight:600}
+.warn{background:var(--warn-bg);color:var(--warn);border-bottom:1px solid var(--line);padding:9px 18px;font-size:13px}
+.warn b{color:var(--ink)}
+.warn code{font-family:var(--ff-m);font-size:12px;background:var(--surface);padding:2px 6px;border-radius:5px}
 .drop{position:fixed;inset:0;background:var(--accent-soft);border:3px dashed var(--accent);display:none;align-items:center;justify-content:center;font-family:var(--ff-q);font-size:24px;color:var(--accent);z-index:9}
 .drop.on{display:flex}
 @media (max-width:900px){
@@ -140,6 +143,11 @@ footer b{color:var(--ink);font-variant-numeric:tabular-nums}
   <span><kbd>Ctrl</kbd>+<kbd>S</kbd> lưu · <kbd>Ctrl</kbd>+<kbd>O</kbd> mở</span>
 </footer>
 
+<div class="warn" id="warnfile" hidden>
+  <b>Không lưu đè được ở chế độ này.</b>
+  Trang đang mở bằng <code>file://</code> — trình duyệt chặn quyền ghi vào ổ đĩa.
+  Đóng tab, chạy <code>py tools/serve.py</code> rồi mở <code>http://127.0.0.1:8778</code> là lưu được bằng Ctrl+S.
+</div>
 <div class="drop" id="drop">Thả file .md vào đây</div>
 <input type="file" id="picker" accept=".md,.markdown,.txt" hidden>
 <a id="dl" hidden></a>
@@ -443,7 +451,12 @@ $("theme").onclick = () => {
   try{ localStorage.setItem("md-theme", next) }catch(e){}
 };
 
-if(!canFS) $("save").title = "Trình duyệt này không lưu đè được — dùng Firefox thì phải Lưu thành…";
+if(!canFS){
+  $("warnfile").hidden = false;
+  $("save").title = "Không lưu đè được ở chế độ này — xem thanh nhắc phía dưới";
+  if(location.protocol !== "file:")
+    $("warnfile").innerHTML = "<b>Trình duyệt này không lưu đè được.</b> Firefox chưa hỗ trợ ghi thẳng vào file — dùng Chrome hoặc Edge, hoặc bấm <b>Lưu thành…</b> rồi thay file thủ công.";
+}
 paint();
 </script>
 </body>
