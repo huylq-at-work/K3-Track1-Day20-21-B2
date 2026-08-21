@@ -7,8 +7,8 @@
 
 | | |
 |---|---|
-| Họ tên | _(điền)_ |
-| MSSV | _(điền)_ |
+| Họ tên | Lê Quang Huy |
+| MSSV | 2A202601821 |
 | Lớp / Track | K3 · Track 1 · Day 20–21 |
 | Nhóm | B2 — Huy · Quân · Cường |
 | Repo | https://github.com/huylq-at-work/K3-Track1-Day20-21-B2 |
