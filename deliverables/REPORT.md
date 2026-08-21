@@ -60,7 +60,7 @@ results-vN.jsonl, labels.csv, judge-prompt-vN.md, verdicts-vN.jsonl, braintrust-
 > ngược được về một đoạn nguyên văn trong corpus, và cái gì corpus không có thì tutor nói
 > thẳng là không có — thay vì lấp đầy bằng kiến thức nền của model.
 
-Hai vế đó nhắm đúng hai chỗ tutor đang hỏng nhất: quote không nguyên văn (19/24) và không
+Hai vế đó nhắm đúng hai chỗ tutor đang hỏng nhất: quote không nguyên văn (13/24) và không
 chịu từ chối (chỉ 1/6 câu `absent` được từ chối đúng).
 
 ### Rubric của bạn
@@ -70,7 +70,8 @@ chịu từ chối (chỉ 1/6 câu `absent` được từ chối đúng).
 | **R1 Schema hợp lệ** | Parse được JSON, đủ 4 field `scope`/`answer`/`sources`/`followup_questions` | Vỡ JSON, thiếu field, bị cắt giữa chừng | **Có** |
 | **R2 Nguồn có thật** | Mọi `doc_id#section_id` tồn tại trong manifest | Bịa doc hoặc section nghe hợp lý | **Có** |
 | **R2b Không cite trùng** | Mỗi section chỉ xuất hiện một lần trong `sources` | Cite lặp một section để `sources` trông dày hơn thực tế | Không |
-| **R3 Quote nguyên văn** | Mỗi `quote` là đoạn liền mạch, khớp section đã cite | Paraphrase, ghép hai câu xa nhau, cắt mất vế điều kiện | **Không — gate cấp bộ** |
+| **R3 Quote nguyên văn** | Mỗi `quote` là đoạn liền mạch, khớp section đã cite (chấp nhận `...` nối các đoạn con đều có thật) | Paraphrase, ghép hai câu xa nhau, cắt mất vế điều kiện | **Không — gate cấp bộ** |
+| **R3b Quote đúng từ vựng** | ≥85% token nội dung của quote có trong section đã cite | Quote dùng từ không hề xuất hiện trong section → dấu hiệu bịa nội dung | Không |
 | **R4 Trung thực về phạm vi** | Câu ngoài corpus → nói thẳng corpus không có, trước khi nói gì khác | Trình bày kiến thức nền như nội dung khoá học; hoặc từ chối oan câu corpus có | **Có** |
 | **R5 Nêu ranh giới vùng partial** | Chỉ rõ phần nào có, phần nào không, **gọi tên** phần thiếu | Nói chung chung "ngoài phạm vi bài"; hoặc nêu tên khái niệm ngoài corpus như gợi ý | Không |
 | **R6 Chất vấn giả định sai** | Sửa giả định **trước** rồi mới trả lời | Trả lời thẳng như thể tiền đề đúng | **Có** với row `false_premise` |
@@ -90,7 +91,7 @@ trong bài.
 
 ### R3 vì sao không phải blocker từng câu
 
-Ban đầu đặt R3 làm blocker thì 19/24 câu fail vì **cùng một lý do**, và nhãn người chỉ lặp
+Ban đầu đặt R3 làm blocker thì 19/24 câu fail (theo bản check cũ) vì **cùng một lý do**, và nhãn người chỉ lặp
 lại điều `code_checks.py` đã nói — làn người mất hết giá trị thông tin. Nhóm chuyển R3
 thành **gate cấp bộ**: `quote_verbatim` hiện **5/24 = 21%**, đặt ngưỡng tối thiểu ở mục 6,
 dưới ngưỡng thì không ship dù pass rate từng câu đẹp đến đâu. Trạng thái quote của từng
@@ -267,7 +268,7 @@ positive.
 | Nhãn vàng (đa số 3 phiếu) | **96%** | không dùng được — 24/25 pass, thiếu mẫu lớp fail |
 | Nhãn Huy (chặt, R4/R5/R8) | **64%** | hành vi: từ chối, nêu ranh giới, không làm hộ |
 | LLM judge v2 | **88%** | trung thực về phạm vi (chưa calibrate) |
-| Làn code (mọi rule đạt) | **16%** | schema + nguồn + quote + followup + trùng nguồn |
+| Làn code (mọi rule đạt) | **32%** | schema + nguồn + quote + followup + trùng nguồn |
 
 Chi tiết làn code trên `results-v2.jsonl`:
 
@@ -277,7 +278,8 @@ Chi tiết làn code trên `results-v2.jsonl`:
 | `citation_exists` | 24/24 |
 | `followup_quality` | 24/24 |
 | `sources_distinct` | **16/24 = 67%** |
-| `quote_verbatim` | **5/24 = 21%** |
+| `quote_token_coverage` | 24/24 = 100% |
+| `quote_verbatim` | **11/24 = 46%** |
 
 **Vận hành:** $0.268 cho 25 câu (**$0.0107/câu**), độ trễ trung vị **10.7s**, p95 **14.7s**,
 tối đa 16.7s. Với một tutor trả lời trong lớp, p95 gần 15 giây là **quá chậm** — đây là
@@ -309,7 +311,7 @@ tiêu chí riêng, không nằm trong pass rate.
 
 | Gate | Ngưỡng đề xuất | Thực tế | |
 |---|---|---|---|
-| `quote_verbatim` (R3, gate cấp bộ) | ≥ 90% | **21%** | ❌ |
+| `quote_verbatim` (R3, gate cấp bộ) | ≥ 90% | **46%** | ❌ |
 | Pass rate `critical_regression` | ≥ 90% | **50%** | ❌ |
 | `schema_valid` + `citation_exists` | ≥ 95% | 96% / 100% | ✅ |
 | Độ trễ p95 | ≤ 8s | 14.7s | ❌ |
@@ -367,7 +369,7 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 |---|---|---|---|
 | R1 schema | 100% | Code, chặn trong CI | 24/25; câu hỏng làm output vô dụng hoàn toàn |
 | R2 nguồn có thật | 100% | Code | 24/24 — tutor không bịa doc_id, chỗ này đang tốt |
-| R3 quote nguyên văn | ≥90% | Code, **gate cấp bộ** | đang 21%. Code bắt tuyệt đối chính xác; judge dễ coi paraphrase là đạt |
+| R3 quote nguyên văn | ≥90% | Code, **gate cấp bộ** | đang 46%. Code bắt tuyệt đối chính xác; judge dễ coi paraphrase là đạt |
 | R2b không cite trùng | ≥90% | Code | đang 67% — failure mode mới phát hiện, chưa ai đo |
 | R4 trung thực về phạm vi | ≥90% | Judge + người audit | judge bắt được SC-17 nhưng sót SC-24; cần thêm vòng near-miss |
 | R5 nêu ranh giới | ≥80% | Judge | thuần ngữ nghĩa, code không chạm được |
@@ -380,7 +382,7 @@ Cân bằng có chủ đích: 6 câu out-of-scope, 6 câu mơ hồ, 12 câu `cri
 
 Ba lý do, mỗi lý do một con số:
 
-1. **Quote nguyên văn 21%.** Sản phẩm bán bằng đúng một lời hứa: câu trả lời có nguồn kiểm
+1. **Quote nguyên văn 46%.** Sản phẩm bán bằng đúng một lời hứa: câu trả lời có nguồn kiểm
    chứng được. Quote sai làm lời hứa đó thành sai, và **tệ hơn trả lời sai thẳng thừng** vì
    nó trông như đã được kiểm chứng.
 2. **critical_regression 50%** trong khi representative 100%. Tutor hỏng đúng ở chỗ đắt
@@ -422,7 +424,7 @@ khi đã ship. Người đọc kết quả là PM chịu trách nhiệm chất l
 vì mọi ngưỡng ở mục 6 đều là **quyết định sản phẩm**, không phải quyết định kỹ thuật.
 
 **Mang về áp dụng:** ba thứ.
-(1) *Kiểm được bằng code thì đừng gọi LLM* — làn code bắt 19/24 lỗi với $0, judge tốn tiền
+(1) *Kiểm được bằng code thì đừng gọi LLM* — làn code bắt 13/24 lỗi với $0, judge tốn tiền
 mà sót đúng những lỗi đó.
 (2) *Agreement thô là con số biết nói dối* — 84% nghe rất ổn trong khi TNR = 0%.
 (3) *Bất đồng giữa người chấm thường là lỗi rubric, không phải lỗi người* — thống nhất một

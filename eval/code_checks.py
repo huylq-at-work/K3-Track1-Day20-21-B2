@@ -84,17 +84,66 @@ def check_quote_verbatim(rec, section_tokens):
             if all_ok:
                 continue
 
-        # 3. Kiểm tra độ phủ token từ khoá (xử lý layout slide 2 cột)
-        sec_set = set(tokens)
-        content_tokens = [t for t in quote_tokens if t not in tutor.STOPWORDS] or quote_tokens
-        matched = sum(1 for t in content_tokens if t in sec_set)
-        coverage = matched / len(content_tokens)
+        return False, f'quote không nguyên văn ở section {s.get("section_id")}: "{(quote_raw)[:35]}..."'
         
-        if coverage >= 0.85:
+    return True, None
+
+
+def check_quote_token_coverage(rec, section_tokens):
+    """Nới hơn quote_verbatim: quote có dùng đúng từ vựng của section không (>=85% token
+    nội dung), KHÔNG xét thứ tự.
+
+    Tách khỏi quote_verbatim vì hai câu hỏi khác nhau:
+      · quote_verbatim  -> "có đúng là trích nguyên văn không"  (lời hứa của sản phẩm)
+      · token_coverage  -> "có bịa nội dung ra khỏi section không"
+    Một paraphrase dùng lại từ vựng của section sẽ ĐẠT check này nhưng HỎNG check trên —
+    và đó là thông tin, không phải nhiễu. Xử lý được cả layout slide 2 cột.
+    """
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    for s in out.get("sources") or []:
+        tokens = section_tokens.get((s.get("doc_id"), s.get("section_id")), [])
+        quote_tokens = tutor.tokens(s.get("quote") or "")
+        if not quote_tokens:
             continue
-            
-        return False, f'quote không khớp section {s.get("section_id")}: "{(quote_raw)[:35]}..." (độ phủ {int(coverage*100)}%)'
-        
+        content = [t for t in quote_tokens if t not in tutor.STOPWORDS] or quote_tokens
+        cov = sum(1 for t in content if t in set(tokens)) / len(content)
+        if cov < 0.85:
+            return False, 'quote lệch từ vựng section %s (độ phủ %d%%)' % (s.get("section_id"), int(cov * 100))
+    return True, None
+
+
+def check_followup_quality(rec):
+    """R9: đúng 3 followup, không trùng nhau, không lặp lại chính câu hỏi gốc."""
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    fups = out.get("followup_questions")
+    if not isinstance(fups, list):
+        return False, "followup_questions không phải list"
+    if len(fups) != 3:
+        return False, "có %d followup, contract đòi đúng 3" % len(fups)
+    norm = [" ".join(tutor.tokens(f or "")) for f in fups]
+    if any(not n for n in norm):
+        return False, "có followup rỗng"
+    if len(set(norm)) < 3:
+        return False, "hai followup trùng nội dung nhau"
+    q = " ".join(tutor.tokens(rec.get("input") or ""))
+    if q and q in norm:
+        return False, "followup lặp lại đúng câu hỏi gốc"
+    return True, None
+
+
+def check_sources_distinct(rec):
+    """R2b: không cite trùng cùng một section nhiều lần — làm sources trông dày hơn thực tế."""
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    keys = [(s.get("doc_id"), s.get("section_id")) for s in out.get("sources") or []]
+    dup = {k for k in keys if keys.count(k) > 1}
+    if dup:
+        return False, "cite trùng section: " + ", ".join("%s#%s" % k for k in sorted(dup))
     return True, None
 
 
@@ -102,6 +151,9 @@ CHECKS = [  # thêm check của nhóm vào đây
     ("schema_valid", check_schema),
     ("citation_exists", check_citation_exists),
     ("quote_verbatim", check_quote_verbatim),
+    ("quote_token_coverage", check_quote_token_coverage),
+    ("followup_quality", check_followup_quality),
+    ("sources_distinct", check_sources_distinct),
 ]
 
 
@@ -119,12 +171,12 @@ def main(path="results.jsonl"):
         sid = rec.get("scenario_id", "?")
         line = [sid]
         for name, fn in CHECKS:
-            if fn is check_schema:
-                ok, reason = fn(rec)
-            elif fn is check_citation_exists:
+            if fn is check_citation_exists:
                 ok, reason = fn(rec, valid_ids)
-            else:
+            elif fn in (check_quote_verbatim, check_quote_token_coverage):
                 ok, reason = fn(rec, section_tokens)
+            else:                      # check 1 tham số
+                ok, reason = fn(rec)
             if ok is None:
                 line.append(f"{name}: skip")
                 continue
