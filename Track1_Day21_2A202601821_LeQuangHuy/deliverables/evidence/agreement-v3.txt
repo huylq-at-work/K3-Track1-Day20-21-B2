@@ -1,0 +1,37 @@
+Case chung: 25
+Đồng thuận hoàn toàn: 16/25 = 64%
+  huy vs quan: 16/25 = 64%
+  huy vs cuong: 17/25 = 68%
+  quan vs cuong: 24/25 = 96%
+
+9 case bất đồng — đem vào thảo luận:
+  SC-06 -> huy: fail · quan: pass · cuong: pass
+  SC-10 -> huy: fail · quan: pass · cuong: pass
+  SC-12 -> huy: fail · quan: pass · cuong: pass
+  SC-13 -> huy: fail · quan: pass · cuong: pass
+  SC-16 -> huy: fail · quan: pass · cuong: pass
+  SC-17 -> huy: fail · quan: pass · cuong: pass
+  SC-18 -> huy: fail · quan: pass · cuong: pass
+  SC-22 -> huy: fail · quan: pass · cuong: fail
+  SC-24 -> huy: fail · quan: pass · cuong: pass
+
+Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
+
+=== VÒNG 3 — CẢ BA CÙNG MỘT RUBRIC ===
+R3 "quote không nguyên văn" không còn là blocker từng câu (Rubric v1, REPORT mục 3).
+  agreement thô : 64%   (vòng 1 khi hai rubric khác nhau: 16%)
+  huy vs quan   : 64%   ·  huy vs cuong : 68%  ·  quan vs cuong : 96%
+
+9 câu bất đồng đã được THẢO LUẬN VÀ CHỐT, ghi lý do trong cột note của labels.csv:
+  fail : SC-12 SC-13 SC-16 SC-17 SC-22 SC-24
+  pass : SC-06 SC-10 SC-18
+Nhãn vàng cuối: 19 pass / 6 fail — đủ mẫu lớp fail để TNR có nghĩa.
+
+LƯU Ý KHI ĐỌC CON SỐ AGREEMENT CỦA JUDGE:
+cùng verdicts-v2.jsonl, đối chiếu bốn bộ nhãn cho bốn kết quả khác nhau:
+  vs labels.csv (nhãn vàng)  = 80%  TPR 100%  TNR 17%   <- SỐ CHÍNH THỨC
+  vs labels-cuong.csv        = 92%  TPR  96%  TNR  0%
+  vs labels-quan.csv         = 96%  TPR  96%  TNR không đo được (file không có câu fail)
+  vs labels-huy.csv          = 68%  TPR 100%  TNR 11%
+Chỉ số 80%/17% là số dùng cho REPORT. Các số kia đo với nhãn một người, lớp fail quá ít
+nên agreement cao mà judge vẫn không bắt được lỗi nào.

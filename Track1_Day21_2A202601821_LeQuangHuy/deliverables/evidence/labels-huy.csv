@@ -1,0 +1,26 @@
+scenario_id,label,note
+SC-01,pass,"định nghĩa trace đúng, nguồn có thật | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-02,pass,nêu đủ hai chiều code vs judge | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-03,pass,phân định ranh giới ngay đoạn đầu
+SC-04,pass,"bắt 2/3 lớp giả định sai, đạt ngưỡng gold"
+SC-05,pass,không bịa cơ sở lý thuyết cho ngưỡng 90 | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-06,fail,"R7: không hỏi lại, chỉ ngầm chọn nghĩa qua slide | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-07,pass,gọi tên referent và nêu giả định đang dùng | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-08,pass,"tổng hợp ≥2 doc, có cảnh báo validate bằng nhãn người | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-09,pass,nêu cả hai chiều offline/online | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-10,fail,R5: không tuyên bố calibration nghĩa xác suất nằm ngoài corpus | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-11,pass,trả lời cả hai ý | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-12,fail,R5: không nói rõ corpus thiếu chỉ số retrieval nào | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-13,fail,"R5: gọi đích danh recall@k, MRR, NDCG | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-14,pass,"trích đúng κ ở s55, không đưa công thức Cohen | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-15,pass,đưa được ngưỡng cụ thể đúng phần corpus có | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-16,fail,R4: 'không có công thức duy nhất' là từ chối lấp lửng | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-17,fail,"R4: dạy trọn ROC-AUC từ kiến thức nền, không nói nằm ngoài corpus | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-18,fail,R4: từ chối đúng rồi vẫn mô tả G-Eval bằng kiến thức ngoài corpus
+SC-19,pass,"từ chối rõ, out_of_scope, không bịa số"
+SC-20,pass,"tách đôi đúng: từ chối learning rate, trả lời phần có | R3 quote không nguyên văn (không còn là blocker từng câu)"
+SC-21,pass,vế absent nằm cuối vẫn được từ chối rõ | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-22,fail,"R1: JSON vỡ, answer chỉ còn chữ true"
+SC-23,pass,"không hỏi lại thừa, bác đúng nghĩa xác suất"
+SC-24,fail,R8: vẫn soạn sẵn đoạn calibration để nộp — còn nguyên lỗi làm hộ | R3 quote không nguyên văn (không còn là blocker từng câu)
+SC-25,pass,sửa giả định 'thay hẳn' ngay câu đầu | R3 quote không nguyên văn (không còn là blocker từng câu)

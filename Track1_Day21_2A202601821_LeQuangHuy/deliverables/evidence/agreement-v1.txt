@@ -1,0 +1,55 @@
+Case chung: 25
+Đồng thuận hoàn toàn: 6/25 = 24%
+  huy vs quan: 6/25 = 24%
+  huy vs cuong: 6/25 = 24%
+  quan vs cuong: 25/25 = 100%
+
+19 case bất đồng — đem vào thảo luận:
+  SC-01 -> huy: fail · quan: pass · cuong: pass
+  SC-02 -> huy: fail · quan: pass · cuong: pass
+  SC-05 -> huy: fail · quan: pass · cuong: pass
+  SC-06 -> huy: fail · quan: pass · cuong: pass
+  SC-07 -> huy: fail · quan: pass · cuong: pass
+  SC-08 -> huy: fail · quan: pass · cuong: pass
+  SC-09 -> huy: fail · quan: pass · cuong: pass
+  SC-10 -> huy: fail · quan: pass · cuong: pass
+  SC-11 -> huy: fail · quan: pass · cuong: pass
+  SC-12 -> huy: fail · quan: pass · cuong: pass
+  SC-13 -> huy: fail · quan: pass · cuong: pass
+  SC-14 -> huy: fail · quan: pass · cuong: pass
+  SC-16 -> huy: fail · quan: pass · cuong: pass
+  SC-17 -> huy: fail · quan: pass · cuong: pass
+  SC-18 -> huy: fail · quan: pass · cuong: pass
+  SC-21 -> huy: fail · quan: pass · cuong: pass
+  SC-22 -> huy: fail · quan: pass · cuong: pass
+  SC-24 -> huy: fail · quan: pass · cuong: pass
+  SC-25 -> huy: fail · quan: pass · cuong: pass
+
+Bước tiếp: thảo luận từng case bất đồng -> chốt nhãn vàng chung vào labels.csv
+
+=== BỐI CẢNH — đọc trước khi dùng con số này ===
+
+Con số 24% KHÔNG phản ánh bất đồng thật về chất lượng tutor. Hai lý do, đều kiểm chứng được:
+
+1) BA NGƯỜI DÙNG HAI RUBRIC KHÁC NHAU
+   huy  : áp blocker R3 "quote không nguyên văn = fail"
+   quan : chấm trước khi nhóm chốt R3
+   cuong: chấm trước khi nhóm chốt R3
+   -> 19/19 bất đồng đều cùng một chiều (huy fail / hai bạn pass).
+      Đây là bất đồng về ĐỊNH NGHĨA "đủ tốt".
+
+2) HAI FILE ĐANG CHẤM TRÊN HAI LẦN CHẠY KHÁC NHAU
+   quan và cuong đều đánh fail đúng SC-15 và SC-20 với lý do "JSON không parse được".
+   Trong results-v2.jsonl (vòng chính thức, có trace) thì SC-15 và SC-20 parse BÌNH THƯỜNG
+   — câu vỡ JSON là SC-22.
+   SC-15 + SC-20 là hai câu vỡ JSON của results-v1.jsonl (vòng cũ, chạy khi tracing còn tắt).
+   -> hai file này nhiều khả năng chấm trên results-v1, không phải results-v2.
+
+   Ngoài ra cột nhãn của quan và cuong TRÙNG KHỚP 25/25 (chỉ khác hoa/thường và lời ghi chú).
+   Hai người chấm độc lập mà khớp tuyệt đối là điều bất thường, cần xác nhận lại.
+
+CÁCH XỬ LÝ (theo ai-evals-m04 §Lesson 4):
+   b1. Chốt Rubric v1 -> Huy/cp3_rubric_routing.md
+   b2. Cả ba chấm LẠI trên đúng results-v2.jsonl, độc lập
+   b3. Đo agreement vòng 2 -> đó mới là con số đưa vào REPORT mục 5
+   Không sửa nhãn cho khớp nhau. Giữ file này làm mốc "trước khi có rubric chung".
