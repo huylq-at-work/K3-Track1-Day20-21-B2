@@ -65,10 +65,53 @@ def check_quote_verbatim(rec, section_tokens):
     return True, None
 
 
+# --- Check của nhóm B2 ---------------------------------------------------
+
+def check_followup_quality(rec):
+    """R9: đúng 3 followup, không trùng nhau, không lặp lại chính câu hỏi gốc.
+
+    Đếm và so trùng là việc thuần xác định -> để code làm, không tốn tiền judge.
+    Phần 'corpus có trả lời được followup này không' mới cần judge."""
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    fups = out.get("followup_questions")
+    if not isinstance(fups, list):
+        return False, "followup_questions không phải list"
+    if len(fups) != 3:
+        return False, "có %d followup, contract đòi đúng 3" % len(fups)
+    norm = [" ".join(tutor.tokens(f or "")) for f in fups]
+    if any(not n for n in norm):
+        return False, "có followup rỗng"
+    if len(set(norm)) < 3:
+        return False, "hai followup trùng nội dung nhau"
+    q = " ".join(tutor.tokens(rec.get("input") or ""))
+    if q and q in norm:
+        return False, "followup lặp lại đúng câu hỏi gốc"
+    return True, None
+
+
+def check_sources_distinct(rec):
+    """R2b: không cite trùng cùng một section nhiều lần.
+
+    Thêm sau khi thấy tutor cite s53 hai lần và s47 ba lần trong một answer —
+    làm sources trông dày hơn thực tế, che mất việc nó chỉ dựa vào một nguồn."""
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    keys = [(s.get("doc_id"), s.get("section_id")) for s in out.get("sources") or []]
+    dup = {k for k in keys if keys.count(k) > 1}
+    if dup:
+        return False, "cite trùng section: " + ", ".join("%s#%s" % k for k in sorted(dup))
+    return True, None
+
+
 CHECKS = [  # thêm check của nhóm vào đây
     ("schema_valid", check_schema),
     ("citation_exists", check_citation_exists),
     ("quote_verbatim", check_quote_verbatim),
+    ("followup_quality", check_followup_quality),
+    ("sources_distinct", check_sources_distinct),
 ]
 
 
@@ -86,12 +129,12 @@ def main(path="results.jsonl"):
         sid = rec.get("scenario_id", "?")
         line = [sid]
         for name, fn in CHECKS:
-            if fn is check_schema:
-                ok, reason = fn(rec)
-            elif fn is check_citation_exists:
+            if fn is check_citation_exists:
                 ok, reason = fn(rec, valid_ids)
-            else:
+            elif fn is check_quote_verbatim:
                 ok, reason = fn(rec, section_tokens)
+            else:                      # check 1 tham số: schema + check của nhóm
+                ok, reason = fn(rec)
             if ok is None:
                 line.append(f"{name}: skip")
                 continue
